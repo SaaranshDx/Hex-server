@@ -1,0 +1,17 @@
+{
+  "name": "ghostbot",
+  "version": "1.0.0",
+  "description": "a discord client for ghostdrop",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "bun --watch index.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.18.0",
+    "dotenv": "^16.4.7",
+    "express": "^5.2.1",
+    "multer": "^2.1.1"
+  },
+  "private": true
+}

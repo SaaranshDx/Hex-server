@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hex Catalog</title>
+    <link rel="stylesheet" href="./styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <div class="logo">
+                    <span class="logo-icon"><i class="fa-solid fa-xmark"></i></span>
+                    <span class="logo-text">Hex Catalog</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="header-btn">
+                    <i class="fa-brands fa-discord"></i> Discord
+                </button>
+<button class="header-btn">
+    <i class="fa-solid fa-arrow-up-from-bracket"></i> Submit Cape
+</button>
+                <button class="header-btn user-chip" id="header-account-chip">
+                    <span class="user-chip-avatar" aria-hidden="true"></span>
+                    <span class="user-chip-text">
+                        <span id="header-ign">[ign]</span>
+                        <span id="header-discord">{discordid}</span>
+                    </span>
+                    <i class="fa-solid fa-angle-down user-chip-caret"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-wrapper">
+            <!-- Left Sidebar - Player Preview -->
+            <aside class="sidebar">
+                <h3>In-Game Player Preview</h3>
+                <canvas id="skin_container"></canvas>
+                <div class="player-info">
+                    <div class="info-row">
+                        <i class="fa-solid fa-id-card"></i>
+                        <span class="info-label">Cape:</span>
+                        <span id="capeid">null</span>
+                    </div>
+                    <div class="info-row">
+                        <i class="fa-solid fa-user"></i>
+                        <p id="username">null</p>
+                    </div>
+                    <div class="info-row">
+                        <i class="fa-brands fa-discord"></i>
+                        <p id="discordtag">null</p>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Right Content - Cape Library -->
+            <main class="content">
+                <section class="cape-library-section">
+                    <h2>Cape Library</h2>
+                    <div id="cape-selector-wrapper"></div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/skinview3d@latest/bundles/skinview3d.bundle.js"></script>
+    <script type="module" src="./index.js"></script>
+</body>
+</html>
