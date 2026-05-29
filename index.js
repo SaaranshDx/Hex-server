@@ -25,6 +25,46 @@ const PORT = 8000;
 // JSON middleware
 app.use(express.json());
 
+// Request logging middleware
+app.use((req, res, next) => {
+  const start = Date.now();
+  const timestamp = new Date().toISOString();
+  
+  const query = Object.keys(req.query).length ? ` query=${JSON.stringify(req.query)}` : '';
+  let body = '';
+  if (req.method === 'POST' && req.body && Object.keys(req.body).length) {
+    const sanitized = { ...req.body };
+    if (sanitized.token) sanitized.token = '***';
+    body = ` body=${JSON.stringify(sanitized)}`;
+  }
+  
+  console.log(`[${timestamp}] --> ${req.method} ${req.originalUrl}${query}${body}`);
+  
+  const originalSend = res.send.bind(res);
+  const originalJson = res.json.bind(res);
+  const originalSendFile = res.sendFile.bind(res);
+  
+  res.send = function (data) {
+    const duration = Date.now() - start;
+    console.log(`[${timestamp}] <-- ${req.method} ${req.originalUrl} ${res.statusCode} (${duration}ms)`);
+    return originalSend(data);
+  };
+  
+  res.json = function (data) {
+    const duration = Date.now() - start;
+    console.log(`[${timestamp}] <-- ${req.method} ${req.originalUrl} ${res.statusCode} (${duration}ms)`);
+    return originalJson(data);
+  };
+  
+  res.sendFile = function (path, options, callback) {
+    const duration = Date.now() - start;
+    console.log(`[${timestamp}] <-- ${req.method} ${req.originalUrl} ${res.statusCode} (${duration}ms)`);
+    return originalSendFile(path, options, callback);
+  };
+  
+  next();
+});
+
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -168,8 +208,19 @@ app.get('/', (req, res) => {
 app.get("/profile/:username", async (req, res) => {
   const { username } = req.params;
   const result = await getprofile(username);
-  res.send(result);
+  sendJson(res, result);
 });
+
+function sendJson(res, payload) {
+  if (typeof payload === "string") {
+    try {
+      payload = JSON.parse(payload);
+    } catch {
+      return res.send(payload);
+    }
+  }
+  return res.json(payload);
+}
 
 app.use(
     "/assets/capes",
@@ -191,7 +242,7 @@ app.post("/other", async (req, res) => {
         }
 
         const result = await getCapeUrls(usernames, PORT);
-        res.send(result);
+        sendJson(res, result);
     } catch (error) {
         console.error("Error in /other endpoint:", error);
         res.status(500).send({ error: "Internal server error" });

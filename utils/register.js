@@ -39,7 +39,7 @@ async function registerUser(userid, ign, accountType) {
 
         const capeid = `null` // new users dosent have any capes LOL
 
-        const data = JSON.stringify({ userid, capeid, permissionlevel: 0, accountType });
+        const data = JSON.stringify({ userid, capeid, permissionlevel: 1, accountType });
         const datawr = await Bun.write(userDataPath, data);
 
 //acc type emoji :D
