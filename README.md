@@ -16,20 +16,6 @@ Minecraft cape management backend with a Discord bot, REST API, and web catalog 
 - **Web Catalog** — Browse capes with search/filter by category (Hex, Partner, Community), 3D skin + cape preview, undo/redo history
 - **Permission System** — 3-tier (User, Partner, Admin) controls upload access by category; per-cape player whitelist
 
-## Getting Started
-
-```bash
-bun install    # or npm install
-cp .env.example .env   # configure DISCORD_TOKEN, CLIENT_ID, GUILD_ID
-bun start      # starts Express + Discord bot on :8000
-```
-
-### Python Auth Server (optional)
-
-```bash
-pip install -r src/requirements.txt
-uvicorn src.main:app
-```
 
 ## API Endpoints
 
