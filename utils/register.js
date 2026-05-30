@@ -1,5 +1,5 @@
 // utils/register.js
-
+import Bun from "./bun-compat.js";
 // Validate Minecraft username format
 // Requirements: 3-16 characters, alphanumeric + underscore only
 function isValidMinecraftUsername(username) {

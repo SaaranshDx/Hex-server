@@ -1,7 +1,7 @@
 // utils/setCape.js
 
 const path = require("path");
-
+import Bun from "./bun-compat.js";
 async function setcape(userid, newCapeId) {
     try {
 

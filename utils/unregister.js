@@ -1,7 +1,7 @@
 //utils/unregister.js
 
 // utils/unregister.js
-
+import Bun from "./bun-compat.js";
 const path = require("path");
 
 async function unregisterUser(userid) {

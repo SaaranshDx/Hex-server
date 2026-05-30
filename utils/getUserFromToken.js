@@ -1,4 +1,5 @@
 // utils/getUserFromToken.js
+import Bun from "./bun-compat.js";
 const path = require("path");
 const { validateToken } = require("./tokenGen");
 
