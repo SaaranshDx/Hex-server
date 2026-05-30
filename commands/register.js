@@ -23,6 +23,6 @@ module.exports = {
             ),    
         async execute(interaction) {
                 const result = await registerUser(interaction.user.id, interaction.options.getString('ign'), interaction.options.getString('account_type'));
-                await interaction.reply(result);
+                await interaction.reply({ content: result, ephemeral: true });
             }
     }

@@ -7,7 +7,7 @@ module.exports = {
     .setDescription('Unregisters you from Hex'),
   async execute(interaction) {
     const result = await unregisterUser(interaction.user.id);
-    await interaction.reply(result);
+    await interaction.reply({ content: result, ephemeral: true });
 
   }
 };

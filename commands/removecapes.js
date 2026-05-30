@@ -7,7 +7,7 @@ module.exports = {
     .setDescription('Lets you remove you capes'),
   async execute(interaction) {
     const result = await setcape(interaction.user.id, "null");
-    await interaction.reply(result);
+    await interaction.reply({ content: result, ephemeral: true });
 
   }
 }; 

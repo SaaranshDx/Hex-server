@@ -32,7 +32,7 @@ module.exports = {
     const ign = interaction.options.getString('ign');
     const permission = interaction.options.getString('permission');
     const result = await setpermission(ign, permission);
-    await interaction.reply(result);
+    await interaction.reply({ content: result, ephemeral: true });
 
   }
 }; 

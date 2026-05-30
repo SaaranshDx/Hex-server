@@ -16,15 +16,15 @@ module.exports = {
         const newCapeId = interaction.options.getString('capeid');
 
         if (newCapeId.toLowerCase() === "none" || newCapeId.toLowerCase() === "null") {
-            await interaction.reply("capeid cannot be null. Use /remove-cosmetics to remove your cape."); 
+            await interaction.reply({ content: "capeid cannot be null. Use /remove-cosmetics to remove your cape.", ephemeral: true }); 
         } else {
             const result = await setcape(interaction.user.id, newCapeId);
-            await interaction.reply(result);
+            await interaction.reply({ content: result, ephemeral: true });
         }
 
     } catch (error) {
       console.error('Error executing set-cape command:', error);
-      await interaction.reply('An error occurred while setting your cape. Please try again later.');
+      await interaction.reply({ content: 'An error occurred while setting your cape. Please try again later.', ephemeral: true });
     }
   }
 };
