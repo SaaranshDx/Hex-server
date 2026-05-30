@@ -159,6 +159,8 @@ document.getElementById("skin_container").addEventListener('wheel', (e) => {
 viewer.animation =
     new skinview3d.IdleAnimation();
 
+viewer.playerObject.rotation.y = -158 * Math.PI / 180;    
+
 
 function updateviewerinfo(capeId, ign, discordid) {
     // Update the viewer with the new cape and skin
