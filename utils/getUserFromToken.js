@@ -1,16 +1,9 @@
-// utils/getUserFromToken.js
-import Bun from "./bun-compat.js";
 const path = require("path");
+const fs = require("fs/promises");
 const { validateToken } = require("./tokenGen");
 
-/**
- * Get user ID, IGN (in-game name), cape ID, and permission level from a token
- * @param {string} token - The token to validate
- * @returns {Promise<{userId: string, ign: string, capeid: string, permissionLvl: number}|null>} - User data if token is valid and has a cape, null otherwise
- */
 async function getUserFromToken(token) {
     try {
-        // Validate token and get userId
         const userId = validateToken(token);
 
         if (!userId) {
@@ -18,28 +11,19 @@ async function getUserFromToken(token) {
         }
 
         const userMetaPath = "./user_meta";
+        const files = (await fs.readdir(userMetaPath)).filter(f => f.endsWith(".json"));
 
-        // get all json files
-        const files = await Array.fromAsync(
-            new Bun.Glob("*.json").scan(userMetaPath)
-        );
-
-        // search every user meta file
         for (const file of files) {
             const fullPath = path.join(userMetaPath, file);
 
             try {
-                const userFile = Bun.file(fullPath);
-                const data = await userFile.json();
+                const data = JSON.parse(await fs.readFile(fullPath, "utf-8"));
 
-                // matching discord userid
                 if (data.userid === userId) {
-                    // Return null if no cape is set
                     if (!data.capeid) {
                         return null;
                     }
 
-                    // Extract ign from filename (remove .json)
                     const ign = file.replace(".json", "");
 
                     return {
@@ -47,17 +31,13 @@ async function getUserFromToken(token) {
                         ign: ign,
                         permissionLvl: data.permissionlevel,
                         capeid: data.capeid
-                    }; 
+                    };
                 }
             } catch (fileError) {
-                console.error(
-                    `Failed to process file ${file}:`,
-                    fileError
-                );
+                console.error(`Failed to process file ${file}:`, fileError);
             }
         }
 
-        // User ID found but no registered account
         return null;
     } catch (error) {
         console.error("Error getting user from token:", error);
@@ -65,6 +45,4 @@ async function getUserFromToken(token) {
     }
 }
 
-module.exports = {
-    getUserFromToken
-};
+module.exports = { getUserFromToken };

@@ -1,86 +1,47 @@
-// utils/setCape.js
-
 const path = require("path");
-import Bun from "./bun-compat.js";
+const fs = require("fs/promises");
+
 async function setcape(userid, newCapeId) {
     try {
-
-        // Check if cape exists (skip if capeid is null)
         if (newCapeId !== "null") {
-            // Append .png extension if not already present
             const capeIdStr = String(newCapeId);
             const capeFileName = capeIdStr.endsWith('.png') ? capeIdStr : `${capeIdStr}.png`;
-            const capeFile = Bun.file(`./assets/capes/${capeFileName}`);
-            if (!(await capeFile.exists())) {
+            try {
+                await fs.access(path.join("./assets/capes", capeFileName));
+            } catch {
                 return `Cape "${newCapeId}" does not exist.`;
             }
         }
 
         const userMetaPath = "./user_meta";
+        const files = (await fs.readdir(userMetaPath)).filter(f => f.endsWith(".json"));
 
-        // get all json files
-        const files = await Array.fromAsync(
-            new Bun.Glob("*.json").scan(userMetaPath)
-        );
-
-        // no registered users
         if (files.length === 0) {
             return "No registered users found.";
         }
 
-        // search every user meta file
         for (const file of files) {
-
             const fullPath = path.join(userMetaPath, file);
 
             try {
+                const data = JSON.parse(await fs.readFile(fullPath, "utf-8"));
 
-                const userFile = Bun.file(fullPath);
-
-                const data = await userFile.json();
-
-                // matching discord userid
                 if (data.userid === userid) {
-
-                    // update cape id
                     data.capeid = newCapeId;
-
-                    // write updated json
-                    await Bun.write(
-                        fullPath,
-                        JSON.stringify(data, null, 2)
-                    );
-
-                    // remove .json from filename
+                    await fs.writeFile(fullPath, JSON.stringify(data, null, 2));
                     const ign = file.replace(".json", "");
-
                     return `Successfully updated ${ign}'s cape to ${newCapeId}.`;
-
                 }
-
             } catch (fileError) {
-
-                console.error(
-                    `Failed to process file ${file}:`,
-                    fileError
-                );
-
+                console.error(`Failed to process file ${file}:`, fileError);
             }
-
         }
 
-        // no linked account found
         return "You do not have a registered account.";
-
     } catch (e) {
-
         console.error(e);
-
         return "An error occurred while updating the cape.";
-
     }
 }
 
-module.exports = {
-    setcape
-};
+module.exports = { setcape };

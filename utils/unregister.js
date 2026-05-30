@@ -1,71 +1,36 @@
-//utils/unregister.js
-
-// utils/unregister.js
-import Bun from "./bun-compat.js";
 const path = require("path");
+const fs = require("fs/promises");
 
 async function unregisterUser(userid) {
     try {
-
         const userMetaPath = "./user_meta";
+        const files = (await fs.readdir(userMetaPath)).filter(f => f.endsWith(".json"));
 
-        // get all files in user_meta
-        const files = await Array.fromAsync(
-            new Bun.Glob("*.json").scan(userMetaPath)
-        );
-
-        // no registered users
         if (files.length === 0) {
             return "No registered users found.";
         }
 
-        // search every meta file
         for (const file of files) {
-
             const fullPath = path.join(userMetaPath, file);
 
             try {
+                const data = JSON.parse(await fs.readFile(fullPath, "utf-8"));
 
-                const userFile = Bun.file(fullPath);
-
-                const data = await userFile.json();
-
-                // check if discord userid matches
                 if (data.userid === userid) {
-
-                    // delete the file
-                    await Bun.file(fullPath).delete();
-
-                    // remove .json from filename
+                    await fs.unlink(fullPath);
                     const ign = file.replace(".json", "");
-
                     return `Successfully unregistered <@${userid}>'s account ${ign}.`;
-
                 }
-
             } catch (fileError) {
-
-                console.error(
-                    `Failed to process file ${file}:`,
-                    fileError
-                );
-
+                console.error(`Failed to process file ${file}:`, fileError);
             }
-
         }
 
-        // no account linked
         return "You do not have a registered account.";
-
     } catch (e) {
-
         console.error(e);
-
         return "An error occurred while unregistering your account.";
-
     }
 }
 
-module.exports = {
-    unregisterUser
-};
+module.exports = { unregisterUser };
