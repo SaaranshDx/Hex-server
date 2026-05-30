@@ -43,7 +43,7 @@ If no metadata file exists, a default response is returned:
 
 | Field              | Type            | Description                              |
 |--------------------|-----------------|------------------------------------------|
-| `category`         | string          | `Community`, `Partner`, or `Hex`         |
+| `category`         | string          | `Community`, `Partner`, `Hex`, `Staff`, or `Mojang` |
 | `playerpermission` | string[]        | IGNs allowed to use this cape, or `["*"]` for everyone |
 | `authorId`         | string or int   | Discord user ID of the uploader          |
 | `authorName`       | string          | IGN of the uploader                      |

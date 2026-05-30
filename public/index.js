@@ -416,7 +416,7 @@ async function buildcapeselector(capelist) {
     wrapperContainer.appendChild(searchContainer);
 
     // Tab bar
-    const tabOrder = ["All", "Hex", "Partner", "Community"];
+    const tabOrder = ["All", "Hex", "Mojang", "Community", "Partner", "Staff"];
     const tabBar = document.createElement('div');
     tabBar.className = 'tab-bar';
 
@@ -446,8 +446,8 @@ async function buildcapeselector(capelist) {
     }
 
     // Group capes by category
-    const categoryOrder = ["Hex", "Partner", "Community"];
-    const categorized = { Hex: [], Partner: [], Community: [] };
+    const categoryOrder = ["Hex", "Mojang", "Staff", "Partner", "Community"];
+    const categorized = { Hex: [], Mojang: [], Staff: [], Partner: [], Community: [] };
     for (const capeId of capelist) {
         const cat = capeData[capeId].meta.category || "Hex";
         if (!categorized[cat]) categorized[cat] = [];
@@ -790,6 +790,10 @@ function openSubmitModal() {
                     <option value="Community">Community</option>
                     <option value="Partner">Partner</option>
                     <option value="Hex">Hex</option>
+                    ${userData && userData.permissionLvl >= 3 ? `
+                    <option value="Staff">Staff</option>
+                    <option value="Mojang">Mojang</option>
+                    ` : ''}
                 </select>
             </div>
 
@@ -803,6 +807,19 @@ function openSubmitModal() {
                     placeholder="Custom ID (e.g. my-cape)"
                 >
                 <div class="submit-field-hint">Leave empty for auto-generated ID.</div>
+            </div>
+            ` : ''}
+
+            ${userData && userData.permissionLvl >= 3 ? `
+            <div class="submit-field">
+                <label class="submit-field-label" for="cape-author-input">Author Name (Optional)</label>
+                <input
+                    id="cape-author-input"
+                    type="text"
+                    class="submit-input"
+                    placeholder="Custom author name"
+                >
+                <div class="submit-field-hint">Leave empty to use your IGN.</div>
             </div>
             ` : ''}
 
@@ -927,6 +944,11 @@ function openSubmitModal() {
             const capeIdInput = document.getElementById("cape-id-input");
             if (capeIdInput && capeIdInput.value.trim()) {
                 formData.append("capeId", capeIdInput.value.trim());
+            }
+
+            const authorInput = document.getElementById("cape-author-input");
+            if (authorInput && authorInput.value.trim()) {
+                formData.append("authorName", authorInput.value.trim());
             }
 
             if (previewFile) {

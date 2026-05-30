@@ -19,18 +19,18 @@ Upload a new cape texture with optional preview image.
 |----------------------|----------|----------|------------------------------------------------|
 | `capeTexture`        | file     | yes      | PNG image of the cape texture                  |
 | `previewImage`       | file     | no       | PNG/WebP preview image for the cape            |
-| `category`           | string   | yes      | Cape category: `Community`, `Partner`, or `Hex` |
+| `category`           | string   | yes      | Cape category: `Community`, `Partner`, `Hex`, `Staff`, or `Mojang` |
 | `playerpermission[]` | string[] | yes      | Array of IGNs allowed to use this cape, or `*` for everyone |
 
 ### Category Permission Levels
 
 Each category requires a minimum `permissionLvl` on the user's token:
 
-| Level | Community | Partner | Hex  |
-|-------|-----------|---------|------|
-| 1     | ✅        | ❌      | ❌   |
-| 2     | ✅        | ✅      | ❌   |
-| 3     | ✅        | ✅      | ✅   |
+| Level | Community | Partner | Hex  | Staff | Mojang |
+|-------|-----------|---------|------|-------|--------|
+| 1     | ✅        | ❌      | ❌   | ❌    | ❌     |
+| 2     | ✅        | ✅      | ❌   | ❌    | ❌     |
+| 3     | ✅        | ✅      | ✅   | ✅    | ✅     |
 
 ## Response
 
@@ -55,7 +55,7 @@ Each category requires a minimum `permissionLvl` on the user's token:
 |--------|---------------------------------------------------------------|
 | 400    | `playerpermission` is not an array                            |
 | 400    | `category` field is missing                                   |
-| 400    | `category` is not `"Community"`, `"Partner"`, or `"Hex"`      |
+| 400    | `category` is not `"Community"`, `"Partner"`, `"Hex"`, `"Staff"`, or `"Mojang"` |
 | 400    | `capeTexture` file not provided                               |
 | 401    | `token` header is missing, invalid, or expired                |
 | 403    | User's `permissionLvl` is too low for the requested category  |

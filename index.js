@@ -6,6 +6,7 @@ const { setcape } = require("./utils/setcape");
 const { generateToken, validateToken } = require("./utils/tokenGen");
 const { getUserFromToken } = require("./utils/getUserFromToken");
 const { validateTokenBoolState } = require("./utils/tokenGen");
+const fs = require("fs");
 const {
   Client,
   Routes,
@@ -81,7 +82,6 @@ client.commands = new Collection();
 
 const multer = require("multer");
 const crypto = require("crypto");
-const fs = require("fs");
 const path = require("path");
 
 const CAPES_DIR = path.join(__dirname, "assets", "capes");
@@ -326,25 +326,20 @@ app.get("/cape-list", async (req, res) => {
 app.get("/preview/capes/:id", (req, res) => {
 
     const capeId = req.params.id;
+    const baseDir = path.join(__dirname, "assets", "renders", "capes");
 
-    const filePath = path.join(
-        __dirname,
-        "assets",
-        "renders",
-        "capes",
-        `${capeId}.webp`
-    );
+    const webpPath = path.join(baseDir, `${capeId}.webp`);
+    const pngPath = path.join(baseDir, `${capeId}.png`);
 
-    res.sendFile(filePath, (err) => {
+    if (fs.existsSync(webpPath)) {
+        return res.sendFile(webpPath);
+    }
 
-        if (err) {
+    if (fs.existsSync(pngPath)) {
+        return res.sendFile(pngPath);
+    }
 
-            res.status(404).send({
-                error: "Render not found"
-            });
-
-        }
-    });
+    res.status(404).send({ error: "Render not found" });
 });
 
 // get cape metadata
@@ -467,6 +462,18 @@ app.post(
                         error: "You don't have permission to upload in this category"
                     });
                 }
+            } else if (category == "Staff") {
+                if (userData.permissionLvl < 3) {
+                    return res.status(403).send({
+                        error: "You don't have permission to upload in this category"
+                    });
+                }
+            } else if (category == "Mojang") {
+                if (userData.permissionLvl < 3) {
+                    return res.status(403).send({
+                        error: "You don't have permission to upload in this category"
+                    });
+                }
             } else {
                 return res.status(400).send({
                     error: "Invalid category"
@@ -539,11 +546,21 @@ app.post(
                 `${capeId}.json`
             );
 
+            let authorName = userData.ign;
+            if (req.body.authorName) {
+                if (userData.permissionLvl < 3) {
+                    return res.status(403).send({
+                        error: "You don't have permission to set custom author names"
+                    });
+                }
+                authorName = req.body.authorName;
+            }
+
             const capeMeta = {
                 category: category,
                 playerpermission: playerpermission,
                 authorId: userData.userId,
-                authorName: userData.ign
+                authorName: authorName
             };
 
             fs.writeFileSync(capeMetaPath, JSON.stringify(capeMeta));
@@ -552,7 +569,7 @@ app.post(
                 success: true,
                 capeId,
                 authorid : userData.userId,
-                authorname : userData.ign,
+                authorname : authorName,
 
                 texture:
                     `/assets/capes/${capeId}.png`,
