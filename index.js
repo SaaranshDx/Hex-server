@@ -229,10 +229,13 @@ app.use(
 
 app.get("/registration-state/:username", async (req, res) => {
     const { username } = req.params;
-    const registationState = await getRegistrationState(username);
-    res.send(registationState);
-});
 
+    const registrationState = await getRegistrationState(username);
+
+    res.type("text/plain");
+    res.send(String(registrationState));
+});
+ 
 app.post("/other", async (req, res) => {
     try {
         const usernames = req.body;

@@ -79,7 +79,7 @@ function showTokenErrorModal() {
     discordBtn.className = 'modal-btn modal-btn-apply';
     discordBtn.style.backgroundColor = '#5865f2';
     discordBtn.onclick = () => {
-        window.open('https://discord.gg/', '_blank');
+        window.open('https://dsc.gg/hexcapes', '_blank');
     };
 
     const closeBtn = document.createElement('button');
