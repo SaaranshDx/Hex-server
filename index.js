@@ -22,7 +22,7 @@ const {
 const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 8000;
-const PUBLIC_URL = process.env.PUBLIC_URL || `http://localhost:${PORT}`;
+const PUBLIC_URL = process.env.PUBLIC_URL + `:${process.env.PORT}` || `http://localhost:${PORT}`;
 
 // JSON middleware
 app.use(express.json());
