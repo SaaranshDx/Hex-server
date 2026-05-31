@@ -21,7 +21,8 @@ const {
 
 const express = require("express");
 const app = express();
-const PORT = 8000;
+const PORT = process.env.PORT || 8000;
+const PUBLIC_URL = process.env.PUBLIC_URL || `http://localhost:${PORT}`;
 
 // JSON middleware
 app.use(express.json());
@@ -244,7 +245,7 @@ app.post("/other", async (req, res) => {
             return res.status(400).send({ error: "Request body must be an array of usernames" });
         }
 
-        const result = await getCapeUrls(usernames, PORT);
+        const result = await getCapeUrls(usernames, PUBLIC_URL);
         sendJson(res, result);
     } catch (error) {
         console.error("Error in /other endpoint:", error);

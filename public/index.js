@@ -198,10 +198,25 @@ async function getcapelist() {
     }
 }
     
+const spinner = document.getElementById("loading-spinner");
+const spinnerIcon = spinner?.querySelector("i");
+let spinInterval;
+if (spinnerIcon) {
+    let angle = 0;
+    spinInterval = setInterval(() => {
+        angle = (angle + 6) % 360;
+        spinnerIcon.style.transform = `rotate(${angle}deg)`;
+    }, 16);
+}
+
 const capelist = await getcapelist();
 
 // Build the cape selector
 buildcapeselector(capelist);
+
+// Remove loading spinner after catalog is built
+if (spinInterval) clearInterval(spinInterval);
+if (spinner) spinner.remove();
 
 async function getcapepreviews(capeId) {
     try {

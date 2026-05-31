@@ -4,10 +4,10 @@ const path = require("path");
 /**
  * Get cape URLs for a list of usernames
  * @param {string[]} usernames - Array of usernames to fetch capes for
- * @param {number} port - Server port for constructing URLs
+ * @param {string} baseUrl - Base URL for constructing asset URLs (e.g. http://localhost:8000)
  * @returns {Promise<Object>} Object with usernames as keys and cape URLs (or null) as values
  */
-async function getCapeUrls(usernames, port) {
+async function getCapeUrls(usernames, baseUrl) {
     try {
         if (!Array.isArray(usernames)) {
             throw new Error("Input must be an array of usernames");
@@ -24,7 +24,7 @@ async function getCapeUrls(usernames, port) {
                     const capeid = userData.capeid;
                     
                     if (capeid && capeid !== "null") {
-                        result[username] = `http://localhost:${port}/assets/capes/${capeid}.png`;
+                        result[username] = `${baseUrl}/assets/capes/${capeid}.png`;
                     } else {
                         result[username] = null;
                     }

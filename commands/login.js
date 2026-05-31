@@ -7,7 +7,8 @@ module.exports = {
     .setDescription('Logs you in to Hex'),
   async execute(interaction) {
     const tk = await generateToken(interaction.user.id);
-    const result = `login to catalog by clicking [here](http://localhost:8000/?token=${tk})`;
+    const PUBLIC_URL = process.env.PUBLIC_URL || 'http://localhost:8000';
+    const result = `login to catalog by clicking [here](${PUBLIC_URL}/?token=${tk})`;
     await interaction.reply({ content: result, ephemeral: true });
 
   }
