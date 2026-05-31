@@ -97,6 +97,35 @@ const upload = multer({
     storage: multer.memoryStorage()
 });
 
+// Rate limit store: 2 cape uploads per 24 hours for permission levels 1 and 2
+// Format: { userId: [timestamp1, timestamp2, ...] }
+const capeUploadStore = {};
+
+function checkCapeUploadLimit(userId, permissionLvl) {
+    if (permissionLvl > 2) {
+        return { allowed: true };
+    }
+
+    const now = Date.now();
+    const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
+
+    if (!capeUploadStore[userId]) {
+        capeUploadStore[userId] = [];
+    }
+
+    capeUploadStore[userId] = capeUploadStore[userId].filter(
+        timestamp => now - timestamp < TWENTY_FOUR_HOURS
+    );
+
+    if (capeUploadStore[userId].length >= 2) {
+        const oldestInWindow = capeUploadStore[userId][0];
+        const retryAfter = Math.ceil((TWENTY_FOUR_HOURS - (now - oldestInWindow)) / 1000);
+        return { allowed: false, retryAfter };
+    }
+
+    return { allowed: true };
+}
+
 const commandsPath = path.join(__dirname, "commands");
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith(".js"));
 
@@ -443,6 +472,15 @@ app.post(
 
             const userData = await getUserFromToken(token);
 
+            // Rate limit check for permission levels 1 and 2
+            const limitCheck = checkCapeUploadLimit(userData.userId, userData.permissionLvl);
+            if (!limitCheck.allowed) {
+                return res.status(429).send({
+                    error: "Upload limit reached. You can upload a maximum of 2 capes per 24 hours.",
+                    retryAfter: limitCheck.retryAfter
+                });
+            }
+
             //category check
 
             if (category == "Community") {
@@ -565,6 +603,14 @@ app.post(
             };
 
             fs.writeFileSync(capeMetaPath, JSON.stringify(capeMeta));
+
+            // Record the upload for rate limiting
+            if (userData.permissionLvl <= 2) {
+                if (!capeUploadStore[userData.userId]) {
+                    capeUploadStore[userData.userId] = [];
+                }
+                capeUploadStore[userData.userId].push(Date.now());
+            }
 
             res.send({
                 success: true,
