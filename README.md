@@ -6,7 +6,7 @@
   </a>
 </p>
 
-<p align="center">The backend service used by Hex</p>
+<p align="center">The backend service used by <a href="https://github.com/SaaranshDx/Hex">Hex</a></p>
 
 <p align="center">
   <a href="https://dsc.gg/hexcapes"><strong>Community</strong></a> ·
