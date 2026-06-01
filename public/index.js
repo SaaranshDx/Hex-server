@@ -447,75 +447,6 @@ async function buildcapeselector(capelist) {
     const selectorContainer = document.createElement('div');
     selectorContainer.id = 'cape-selector';
 
-    // Fetch metadata for all capes in parallel
-    const metaResults = await Promise.all(capelist.map(cape => getCapeMeta(cape)));
-
-    // Build a map: capeId -> { meta, preview }
-    const capeData = {};
-    for (let i = 0; i < capelist.length; i++) {
-        const capeId = capelist[i];
-        const meta = metaResults[i] || { category: "Hex", authorName: "Unknown", playerpermission: ["*"] };
-        capeData[capeId] = { meta, preview: null };
-    }
-
-    // Group capes by category
-    const categoryOrder = ["Hex", "Mojang", "Staff", "Partner", "Community"];
-    const categorized = { Hex: [], Mojang: [], Staff: [], Partner: [], Community: [] };
-    for (const capeId of capelist) {
-        const cat = capeData[capeId].meta.category || "Hex";
-        if (!categorized[cat]) categorized[cat] = [];
-        categorized[cat].push(capeId);
-    }
-
-    // Render cape items (no category headings, all flat with data-category)
-    for (const category of categoryOrder) {
-        const capeIds = categorized[category];
-        if (!capeIds || capeIds.length === 0) continue;
-
-        for (const capeId of capeIds) {
-            const isCurrentCape = String(capeId) === String(capeHistory[historyIndex]);
-            const meta = capeData[capeId].meta;
-            const authorName = meta.authorName || 'Unknown';
-
-            const capeItemContainer = document.createElement('div');
-            capeItemContainer.setAttribute('data-cape-id', capeId);
-            capeItemContainer.setAttribute('data-searchable', `${capeId.toLowerCase()} ${authorName.toLowerCase()}`);
-            capeItemContainer.setAttribute('data-category', category.toLowerCase());
-            capeItemContainer.style.background = isCurrentCape ? '#14141e' : '#0a0a0e';
-            capeItemContainer.style.borderColor = isCurrentCape ? '#333' : 'transparent';
-
-            const capeItem = document.createElement('div');
-            capeItem.style.borderColor = '#1a1a24';
-            capeItem.style.boxShadow = 'none';
-
-            const preview = await getcapepreviews(capeId);
-            if (preview) {
-                const img = document.createElement('img');
-                img.src = URL.createObjectURL(preview);
-                capeItem.appendChild(img);
-            } else {
-                capeItem.innerHTML = `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 12px;">Cape ${capeId}</div>`;
-            }
-
-            const capeIdLabel = document.createElement('div');
-            capeIdLabel.setAttribute('data-cape-label', 'true');
-            capeIdLabel.innerHTML = `
-                <span class="cape-number">${capeId}</span>
-                <span class="cape-meta">@${authorName}</span>
-            `;
-            capeIdLabel.style.cssText = `
-                color: ${isCurrentCape ? 'var(--accent)' : 'var(--text-secondary)'};
-                font-weight: ${isCurrentCape ? 'bold' : '500'};
-            `;
-
-            capeItem.onclick = async () => showCapePreview(capeId, preview, meta);
-
-            capeItemContainer.appendChild(capeItem);
-            capeItemContainer.appendChild(capeIdLabel);
-            selectorContainer.appendChild(capeItemContainer);
-        }
-    }
-
     let activeTab = 'all';
 
     function filterByTab(tab) {
@@ -538,11 +469,9 @@ async function buildcapeselector(capelist) {
             }
         });
 
-        // Update tab button active state
         Object.values(tabButtons).forEach(btn => btn.classList.remove('active'));
         if (tabButtons[tab]) tabButtons[tab].classList.add('active');
 
-        // Show "no results" message
         const existing = selectorContainer.querySelector('[data-no-results]');
         if (existing) existing.remove();
 
@@ -561,14 +490,12 @@ async function buildcapeselector(capelist) {
         }
     }
 
-    // Wire up tab clicks
     for (const btn of tabBar.querySelectorAll('.tab-btn')) {
         btn.addEventListener('click', () => {
             filterByTab(btn.getAttribute('data-tab'));
         });
     }
 
-    // Search within current tab
     searchInput.addEventListener('input', () => {
         filterByTab(activeTab);
     });
@@ -580,8 +507,62 @@ async function buildcapeselector(capelist) {
         targetContainer.replaceChildren(wrapperContainer);
     }
 
-    if (spinInterval) clearInterval(spinInterval);
-    if (spinner) spinner.remove();
+    let remaining = capelist.length;
+
+    for (const capeId of capelist) {
+        getCapeMeta(capeId).then(meta => {
+            const isCurrentCape = String(capeId) === String(capeHistory[historyIndex]);
+            const authorName = meta.authorName || 'Unknown';
+            const cat = meta.category || 'Hex';
+
+            const capeItemContainer = document.createElement('div');
+            capeItemContainer.setAttribute('data-cape-id', capeId);
+            capeItemContainer.setAttribute('data-searchable', `${capeId.toLowerCase()} ${authorName.toLowerCase()}`);
+            capeItemContainer.setAttribute('data-category', cat.toLowerCase());
+            capeItemContainer.style.background = isCurrentCape ? '#14141e' : '#0a0a0e';
+            capeItemContainer.style.borderColor = isCurrentCape ? '#333' : 'transparent';
+
+            const capeItem = document.createElement('div');
+            capeItem.style.borderColor = '#1a1a24';
+            capeItem.style.boxShadow = 'none';
+            capeItem.innerHTML = `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 12px;">Cape ${capeId}</div>`;
+
+            const capeIdLabel = document.createElement('div');
+            capeIdLabel.setAttribute('data-cape-label', 'true');
+            capeIdLabel.innerHTML = `
+                <span class="cape-number">${capeId}</span>
+                <span class="cape-meta">@${authorName}</span>
+            `;
+            capeIdLabel.style.cssText = `
+                color: ${isCurrentCape ? 'var(--accent)' : 'var(--text-secondary)'};
+                font-weight: ${isCurrentCape ? 'bold' : '500'};
+            `;
+
+            capeItem.onclick = () => showCapePreview(capeId, null, meta);
+
+            capeItemContainer.appendChild(capeItem);
+            capeItemContainer.appendChild(capeIdLabel);
+            selectorContainer.appendChild(capeItemContainer);
+
+            filterByTab(activeTab);
+
+            getcapepreviews(capeId).then(preview => {
+                if (preview) {
+                    capeItem.innerHTML = '';
+                    const img = document.createElement('img');
+                    img.src = URL.createObjectURL(preview);
+                    capeItem.appendChild(img);
+                    capeItem.onclick = () => showCapePreview(capeId, preview, meta);
+                }
+            });
+        }).finally(() => {
+            remaining--;
+            if (remaining === 0) {
+                if (spinInterval) clearInterval(spinInterval);
+                if (spinner) spinner.remove();
+            }
+        });
+    }
 }
 
 function showSubmitSuccessPopup(capeId) {
