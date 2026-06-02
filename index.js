@@ -6,6 +6,7 @@ const { setcape } = require("./utils/setcape");
 const { generateToken, validateToken } = require("./utils/tokenGen");
 const { getUserFromToken } = require("./utils/getUserFromToken");
 const { validateTokenBoolState } = require("./utils/tokenGen");
+const ngrok = require("@ngrok/ngrok");
 const fs = require("fs");
 const {
   Client,
@@ -27,6 +28,18 @@ const PUBLIC_URL = process.env.PUBLIC_URL + `:${process.env.PORT}` || `http://lo
 // JSON middleware
 app.use(express.json());
 
+// ngrok reverseproxy listenter
+
+/*
+(async () => {
+  const listener = await ngrok.forward({
+    addr: PORT,
+    authtoken: process.env.NGROK_AUTHTOKEN,
+  });
+
+  console.log(listener.url());
+})();
+*/
 // Request logging middleware
 app.use((req, res, next) => {
   const start = Date.now();
@@ -205,6 +218,7 @@ client.on(Events.InteractionCreate, async interaction => {
   }
 
 });
+
 
 // Generate unique 4-digit ID
 function generateCapeId() {
