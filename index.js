@@ -24,6 +24,7 @@ const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 8000;
 const PUBLIC_URL = process.env.PUBLIC_URL + `:${process.env.PORT}` || `http://localhost:${PORT}`;
+const SERVICE_PORT = process.env.SERVICE_PORT || PORT;
 
 // JSON middleware
 app.use(express.json());
@@ -665,6 +666,6 @@ app.get("/api/version", (req, res) => {
 
 client.login(process.env.DISCORD_TOKEN);
 
-app.listen(PORT, () => {
-    console.log(`Hex server running on port ${PORT}`);
+app.listen(SERVICE_PORT, () => {
+    console.log(`Hex server running on port ${SERVICE_PORT}`);
 });
