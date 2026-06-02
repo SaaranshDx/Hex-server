@@ -250,6 +250,15 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// css endpoint
+app.get('/styles.css', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'styles.css'));
+});
+
+app.get('/index.js', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.js'));
+});
+
 app.get("/profile/:username", async (req, res) => {
   const { username } = req.params;
   const result = await getprofile(username);
