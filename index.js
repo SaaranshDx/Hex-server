@@ -7,6 +7,7 @@ const { generateToken, validateToken } = require("./utils/tokenGen");
 const { getUserFromToken } = require("./utils/getUserFromToken");
 const { validateTokenBoolState } = require("./utils/tokenGen");
 const ngrok = require("@ngrok/ngrok");
+const { generateCapePreview } = require("./utils/capePreviews");
 const fs = require("fs");
 const {
   Client,
@@ -441,18 +442,12 @@ app.get("/profile/meta/:token", async (req, res) => {
     res.send(userData);
 });
 
-/*
-FormData fields:
-
-capeTexture -> required
-previewImage -> optional
-*/
+/* FormData fields: capeTexture -> required */
 
 app.post(
     "/upload-cape",
     upload.fields([
-        { name: "capeTexture", maxCount: 1 },
-        { name: "previewImage", maxCount: 1 }
+        { name: "capeTexture", maxCount: 1 }
     ]),
 
     async (req, res) => {
@@ -577,28 +572,15 @@ app.post(
                 capeTexture.buffer
             );
 
+            // Generate cape preview via renderer API
             let previewPath = null;
-
-            // Save preview image if provided
-            const previewImage =
-                req.files?.previewImage?.[0];
-
-            if (previewImage) {
-
-                const ext =
-                    path.extname(
-                        previewImage.originalname
-                    ) || ".png";
-
-                previewPath = path.join(
-                    RENDERS_DIR,
-                    `${capeId}${ext}`
-                );
-
-                fs.writeFileSync(
-                    previewPath,
-                    previewImage.buffer
-                );
+            try {
+                const previewBuffer = await generateCapePreview(capeTexture.buffer);
+                const previewFilePath = path.join(RENDERS_DIR, `${capeId}.png`);
+                fs.writeFileSync(previewFilePath, previewBuffer);
+                previewPath = `/renders/capes/${capeId}.png`;
+            } catch (previewError) {
+                console.error(`Failed to generate preview for cape ${capeId}:`, previewError.message);
             }
 
             // cape meta saving
@@ -645,10 +627,7 @@ app.post(
                 texture:
                     `/assets/capes/${capeId}.png`,
 
-                preview:
-                    previewPath
-                        ? `/renders/capes/${path.basename(previewPath)}`
-                        : null
+                preview: previewPath
             });
 
         } catch (error) {

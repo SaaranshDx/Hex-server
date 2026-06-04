@@ -764,23 +764,6 @@ function openSubmitModal() {
                 <div class="upload-zone-badge">Required</div>
             </div>
 
-            <div class="upload-zone" data-upload-zone="cape-preview-input">
-                <input
-                    id="cape-preview-input"
-                    type="file"
-                    accept="image/*"
-                >
-                <div class="upload-zone-icon" aria-hidden="true">
-                    <i class="fa-regular fa-image"></i>
-                </div>
-                <div class="upload-zone-content">
-                    <div class="upload-zone-title">Preview Image</div>
-                    <div class="upload-zone-help">Optional. Add a preview image to show the cape before upload.</div>
-                    <div class="upload-zone-file" data-file-label="cape-preview-input">No file selected yet</div>
-                </div>
-                <div class="upload-zone-badge">Optional</div>
-            </div>
-
             <div class="submit-field">
                 <label class="submit-field-label" for="cape-category-select">Category</label>
                 <select id="cape-category-select" class="submit-select">
@@ -866,12 +849,6 @@ function openSubmitModal() {
         document.querySelector('[data-file-label="cape-texture-input"]')
     );
 
-    setupUploadZone(
-        modal.querySelector('[data-upload-zone="cape-preview-input"]'),
-        document.getElementById("cape-preview-input"),
-        document.querySelector('[data-file-label="cape-preview-input"]')
-    );
-
     // Upload logic
     document
         .getElementById("submit-cape-btn")
@@ -880,11 +857,6 @@ function openSubmitModal() {
             const textureFile =
                 document.getElementById(
                     "cape-texture-input"
-                ).files[0];
-
-            const previewFile =
-                document.getElementById(
-                    "cape-preview-input"
                 ).files[0];
 
             if (!textureFile) {
@@ -900,16 +872,6 @@ function openSubmitModal() {
             if (!textureFile.type || textureFile.type !== "image/png") {
                 showPopup(
                     "Cape texture must be a PNG file",
-                    "error",
-                    3000
-                );
-
-                return;
-            }
-
-            if (previewFile && previewFile.type && !previewFile.type.startsWith("image/")) {
-                showPopup(
-                    "Preview must be an image file",
                     "error",
                     3000
                 );
@@ -948,13 +910,10 @@ function openSubmitModal() {
                 formData.append("authorName", authorInput.value.trim());
             }
 
-            if (previewFile) {
-
-                formData.append(
-                    "previewImage",
-                    previewFile
-                );
-            }
+            const submitBtn = document.getElementById("submit-cape-btn");
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Uploading...';
 
             try {
 
@@ -994,6 +953,8 @@ function openSubmitModal() {
             } catch (error) {
 
                 console.error(error);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
 
                 showPopup(
                     error.message || "Failed to upload cape",
