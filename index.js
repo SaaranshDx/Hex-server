@@ -256,6 +256,11 @@ app.get('/styles.css', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'styles.css'));
 });
 
+app.get('/uptime-state', (req, res) => {
+    res.type("text/plain");
+    res.send("ok");
+});
+
 app.get('/index.js', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.js'));
 });
