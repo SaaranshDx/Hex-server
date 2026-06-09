@@ -52,19 +52,20 @@ function showTokenErrorModal() {
     modalContent.appendChild(description);
 
     const steps = document.createElement('ol');
-    steps.style.cssText = 'margin: 1.5rem 0; color: #ccc; line-height: 1.8;';
+    steps.style.cssText = 'margin: 1.5rem 0; color: #ccc; line-height: 1.8; list-style: none; padding-left: 0;';
     
     const stepTexts = [
-        'Join our Discord server',
-        //'Go to the #cmd channel',
-        'Type /register to create an account',
-        'Type /login to login with your account',
-        'Then open the link provided by the bot'
+        '<i class="fa-solid fa-download"></i> Download the mod from <a href="https://modrinth.com/mod/hex-capes" target="_blank">Modrinth</a>',
+        '<i class="fa-solid fa-wrench"></i> Install <code>Fabric Loader</code> for your Minecraft version.',
+        '<i class="fa-solid fa-folder-open"></i> Place the Hex <code>.jar</code> into your <code>mods</code> folder.',
+        '<i class="fa-solid fa-hashtag"></i> Goto <code>#cmd</code>, type <code>/register</code> and add the details',
+        '<i class="fa-solid fa-right-to-bracket"></i> Then type <code>/login</code> to login to the Hex dashboard',
+        '<i class="fa-solid fa-rocket"></i> Launch Minecraft and enjoy your cape <i class="fa-solid fa-crown"></i>'
     ];
 
-    stepTexts.forEach(text => {
+    stepTexts.forEach(html => {
         const li = document.createElement('li');
-        li.textContent = text;
+        li.innerHTML = html;
         li.style.marginBottom = '0.5rem';
         steps.appendChild(li);
     });
