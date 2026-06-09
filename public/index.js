@@ -55,10 +55,10 @@ function showTokenErrorModal() {
     steps.style.cssText = 'margin: 1.5rem 0; color: #ccc; line-height: 1.8; list-style: none; padding-left: 0;';
     
     const stepTexts = [
-        '<i class="fa-solid fa-download"></i> Download the mod from <a href="https://modrinth.com/mod/hex-capes" target="_blank">Modrinth</a>',
+        '<i class="fa-solid fa-download"></i> Download the mod from <a class="cmd-link" href="https://modrinth.com/mod/hex-capes" target="_blank">Modrinth</a>',
         '<i class="fa-solid fa-wrench"></i> Install <code>Fabric Loader</code> for your Minecraft version.',
         '<i class="fa-solid fa-folder-open"></i> Place the Hex <code>.jar</code> into your <code>mods</code> folder.',
-        '<i class="fa-solid fa-hashtag"></i> Goto <code>#cmd</code>, type <code>/register</code> and add the details',
+        '<i class="fa-solid fa-hashtag"></i> Goto <a class="cmd-link" href="https://discord.com/channels/1387030831142277240/1510559775107055726" target="_blank">#cmd</a>, type <code>/register</code> and add the details',
         '<i class="fa-solid fa-right-to-bracket"></i> Then type <code>/login</code> to login to the Hex dashboard',
         '<i class="fa-solid fa-rocket"></i> Launch Minecraft and enjoy your cape <i class="fa-solid fa-crown"></i>'
     ];
@@ -93,6 +93,11 @@ function showTokenErrorModal() {
     modalContent.appendChild(buttonContainer);
 
     modal.appendChild(modalContent);
+
+    const linkStyle = document.createElement('style');
+    linkStyle.textContent = `.cmd-link { display: inline-block; background: rgba(88, 101, 242, .25); border: 1px solid rgba(88, 101, 242, .5); color: #8be0ff; border-radius: 4px; padding: 2px 4px; text-decoration: none; font-size: 12px; }`;
+    modalContent.appendChild(linkStyle);
+
     modal.onclick = (e) => {
         if (e.target === modal) {
             document.body.removeChild(modal);
@@ -101,6 +106,8 @@ function showTokenErrorModal() {
 
     document.body.appendChild(modal);
 }
+
+document.getElementById('how-to-use-btn').addEventListener('click', showTokenErrorModal);
 
 // extract the token from the url
 
