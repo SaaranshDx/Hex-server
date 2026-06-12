@@ -1,3 +1,4 @@
+const express = require("express");
 require("dotenv/config");
 const { getprofile } = require("./utils/getProfile");
 const { getRegistrationState } = require("./utils/registrationState");
@@ -9,6 +10,7 @@ const { validateTokenBoolState } = require("./utils/tokenGen");
 const ngrok = require("@ngrok/ngrok");
 const { generateCapePreview } = require("./utils/capePreviews");
 const fs = require("fs");
+
 const {
   Client,
   Routes,
@@ -21,7 +23,7 @@ const {
   PresenceUpdateStatus,
 } = require("discord.js");
 
-const express = require("express");
+
 const app = express();
 const PORT = process.env.PORT || 8000;
 const PUBLIC_URL = process.env.PUBLIC_URL + `:${process.env.PORT}` || `http://localhost:${PORT}`;
@@ -29,6 +31,10 @@ const SERVICE_PORT = process.env.SERVICE_PORT || PORT;
 
 // JSON middleware
 app.use(express.json());
+
+const cors = require("cors");
+app.use(cors()); // before routes and express.static
+
 
 // ngrok reverseproxy listenter
 
@@ -286,6 +292,12 @@ app.use(
     "/assets/capes",
     express.static("assets/capes")
 );
+
+app.use(
+    "/assets/skins",
+    express.static("assets/skins")
+);
+
 
 app.get("/registration-state/:username", async (req, res) => {
     const { username } = req.params;

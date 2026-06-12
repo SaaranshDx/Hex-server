@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@ngrok/ngrok": "^1.7.0",
+    "cors": "^2.8.6",
     "discord.js": "^14.18.0",
     "dotenv": "^16.4.7",
     "express": "^5.2.1",
