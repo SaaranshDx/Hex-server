@@ -513,6 +513,23 @@ button, input {
     background: #14141e;
 }
 
+.modal-btn-fav {
+    background: #0a0a0e;
+    color: #666;
+    border: 1px solid #222;
+}
+
+.modal-btn-fav:hover {
+    background: #14141e;
+    color: #ffbc44;
+    border-color: #ffbc44;
+}
+
+.modal-btn-fav.active {
+    color: #ff4d94;
+    border-color: #ff4d9466;
+}
+
 /* ===== Submit Modal ===== */
 .submit-modal-overlay {
     position: fixed;
@@ -698,6 +715,47 @@ button, input {
 
 .submit-cape-btn:active {
     transform: translateY(0);
+}
+
+/* ===== Favorite Star ===== */
+.fav-star {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    z-index: 2;
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.6);
+    color: #666;
+    font-size: 11px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.15s ease, color 0.15s ease, background 0.15s ease;
+    padding: 0;
+    line-height: 1;
+    opacity: 0;
+}
+
+.fav-star.active {
+    opacity: 1;
+    color: #ff4d94;
+}
+
+[data-cape-id]:hover .fav-star {
+    opacity: 1;
+}
+
+.fav-star:hover {
+    background: rgba(0, 0, 0, 0.8);
+    color: #ff4d94;
+}
+
+.fav-star.active {
+    color: #ffbc44;
 }
 
 /* ===== Popup ===== */

@@ -152,6 +152,40 @@ if (!ign || !capeId) {
 // Initialize cape history with current cape
 capeHistory = [capeId];
 
+// Favorites state
+let favorites = userData?.favorites || [];
+
+async function addFavorite(capeId) {
+    const response = await fetch('/fav', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, capeId })
+    });
+    return await response.json();
+}
+
+async function removeFavorite(capeId) {
+    const response = await fetch('/fav', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, capeId })
+    });
+    return await response.json();
+}
+
+function isFavorite(capeId) {
+    return favorites.includes(capeId);
+}
+
+function toggleFavorite(capeId) {
+    const idx = favorites.indexOf(capeId);
+    if (idx === -1) {
+        favorites.push(capeId);
+    } else {
+        favorites.splice(idx, 1);
+    }
+}
+
 const viewer = new skinview3d.SkinViewer({
     canvas: document.getElementById("skin_container"),
     width: 280,
@@ -325,6 +359,44 @@ async function showCapePreview(capeId, preview, meta) {
     const buttonContainer = document.createElement('div');
     buttonContainer.className = 'modal-buttons';
 
+    // Favorite toggle button
+    const favBtn = document.createElement('button');
+    const isFav = isFavorite(capeId);
+    favBtn.innerHTML = isFav
+        ? '<i class="fa-solid fa-heart"></i> Liked'
+        : '<i class="fa-regular fa-heart"></i> Like';
+    favBtn.className = 'modal-btn' + (isFav ? ' modal-btn-fav active' : ' modal-btn-fav');
+    favBtn.onclick = async () => {
+        const wasFav = isFavorite(capeId);
+        if (wasFav) {
+            const result = await removeFavorite(capeId);
+            if (!result.success) {
+                showPopup(result.message || 'Failed to remove favorite', 'error', 3000);
+                return;
+            }
+        } else {
+            const result = await addFavorite(capeId);
+            if (!result.success) {
+                showPopup(result.message || 'Failed to add favorite', 'error', 3000);
+                return;
+            }
+        }
+        toggleFavorite(capeId);
+        favBtn.innerHTML = isFavorite(capeId)
+            ? '<i class="fa-solid fa-heart"></i> Liked'
+            : '<i class="fa-regular fa-heart"></i> Like';
+        favBtn.classList.toggle('active');
+        showPopup(wasFav ? 'Removed from favorites' : 'Added to favorites', 'success', 1500);
+
+        const starBtn = document.querySelector(`[data-cape-id="${capeId}"] .fav-star`);
+        if (starBtn) {
+            starBtn.classList.toggle('active');
+            starBtn.innerHTML = isFavorite(capeId)
+                ? '<i class="fa-solid fa-heart"></i>'
+                : '<i class="fa-regular fa-heart"></i>';
+        }
+    };
+
     // Apply button
     const applyBtn = document.createElement('button');
     applyBtn.textContent = 'Apply Cape';
@@ -340,6 +412,7 @@ async function showCapePreview(capeId, preview, meta) {
     cancelBtn.className = 'modal-btn modal-btn-cancel';
     cancelBtn.onclick = () => document.body.removeChild(modal);
 
+    buttonContainer.appendChild(favBtn);
     buttonContainer.appendChild(applyBtn);
     buttonContainer.appendChild(cancelBtn);
     modalContent.appendChild(buttonContainer);
@@ -437,7 +510,7 @@ async function buildcapeselector(capelist) {
     wrapperContainer.appendChild(searchContainer);
 
     // Tab bar
-    const tabOrder = ["All", "Hex", "Mojang", "Community", "Partner", "Staff"];
+    const tabOrder = ["All", "Favorites", "Hex", "Mojang", "Community", "Partner", "Staff"];
     const tabBar = document.createElement('div');
     tabBar.className = 'tab-bar';
 
@@ -465,7 +538,15 @@ async function buildcapeselector(capelist) {
         let visibleCount = 0;
         capeItems.forEach(item => {
             const category = item.getAttribute('data-category');
-            const matchesTab = tab === 'all' || category === tab;
+            const capeId = item.getAttribute('data-cape-id');
+            let matchesTab;
+            if (tab === 'all') {
+                matchesTab = true;
+            } else if (tab === 'favorites') {
+                matchesTab = isFavorite(capeId);
+            } else {
+                matchesTab = category === tab;
+            }
             const searchable = item.getAttribute('data-searchable');
             const matchesSearch = !searchTerm || searchable.includes(searchTerm);
 
@@ -529,6 +610,7 @@ async function buildcapeselector(capelist) {
             capeItemContainer.setAttribute('data-category', cat.toLowerCase());
             capeItemContainer.style.background = isCurrentCape ? '#14141e' : '#0a0a0e';
             capeItemContainer.style.borderColor = isCurrentCape ? '#333' : 'transparent';
+            capeItemContainer.style.position = 'relative';
 
             const capeItem = document.createElement('div');
             capeItem.style.borderColor = '#1a1a24';
@@ -550,6 +632,38 @@ async function buildcapeselector(capelist) {
 
             capeItemContainer.appendChild(capeItem);
             capeItemContainer.appendChild(capeIdLabel);
+
+            const favBtn = document.createElement('button');
+            favBtn.className = 'fav-star' + (isFavorite(capeId) ? ' active' : '');
+            favBtn.innerHTML = isFavorite(capeId)
+                ? '<i class="fa-solid fa-heart"></i>'
+                : '<i class="fa-regular fa-heart"></i>';
+            favBtn.onclick = async (e) => {
+                e.stopPropagation();
+                const wasFav = isFavorite(capeId);
+                if (wasFav) {
+                    const result = await removeFavorite(capeId);
+                    if (!result.success) {
+                        showPopup(result.message || 'Failed to remove favorite', 'error', 3000);
+                        return;
+                    }
+                } else {
+                    const result = await addFavorite(capeId);
+                    if (!result.success) {
+                        showPopup(result.message || 'Failed to add favorite', 'error', 3000);
+                        return;
+                    }
+                }
+                toggleFavorite(capeId);
+                favBtn.classList.toggle('active');
+                favBtn.innerHTML = isFavorite(capeId)
+                    ? '<i class="fa-solid fa-heart"></i>'
+                    : '<i class="fa-regular fa-heart"></i>';
+                showPopup(wasFav ? 'Removed from favorites' : 'Added to favorites', 'success', 1500);
+                filterByTab(activeTab);
+            };
+
+            capeItemContainer.appendChild(favBtn);
             selectorContainer.appendChild(capeItemContainer);
 
             filterByTab(activeTab);
