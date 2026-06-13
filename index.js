@@ -342,9 +342,6 @@ app.post("/change-cape", async (req, res) => {
         // Validate token and get userId
         const userId = validateToken(token);
 
-        if (!userId) {
-            return res.status(401).send({ error: "Invalid or expired token" });
-        }
 
         // Get user data for permission check
         const userData = await getUserFromToken(token);
