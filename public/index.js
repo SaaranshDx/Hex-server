@@ -107,6 +107,79 @@ function showTokenErrorModal() {
     document.body.appendChild(modal);
 }
 
+// Show modal for invalid/expired token - prompts user to login
+function showLoginModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.style.zIndex = '10000';
+
+    const modalContent = document.createElement('div');
+    modalContent.className = 'modal-content';
+    modalContent.style.maxWidth = '500px';
+
+    const title = document.createElement('h2');
+    title.textContent = 'Login Required';
+    title.style.color = '#e14c55';
+    modalContent.appendChild(title);
+
+    const description = document.createElement('p');
+    description.textContent = 'Your session has expired or the token is invalid. Please login again to continue.';
+    description.style.cssText = 'margin: 1rem 0; color: #999;';
+    modalContent.appendChild(description);
+
+    const steps = document.createElement('ol');
+    steps.style.cssText = 'margin: 1.5rem 0; color: #ccc; line-height: 1.8; list-style: none; padding-left: 0;';
+
+    const stepTexts = [
+        '<i class="fa-brands fa-discord"></i> Go to <a class="cmd-link" href="https://discord.com/channels/1387030831142277240/1510559775107055726" target="_blank">#cmd</a> in the Hex Discord',
+        '<i class="fa-solid fa-hashtag"></i> Type <code>/login</code> to get a new token',
+        '<i class="fa-solid fa-arrow-right"></i> Click the new link provided by the bot'
+    ];
+
+    stepTexts.forEach(html => {
+        const li = document.createElement('li');
+        li.innerHTML = html;
+        li.style.marginBottom = '0.5rem';
+        steps.appendChild(li);
+    });
+
+    modalContent.appendChild(steps);
+
+    const buttonContainer = document.createElement('div');
+    buttonContainer.className = 'modal-buttons';
+
+    const discordBtn = document.createElement('button');
+    discordBtn.textContent = 'Join Discord';
+    discordBtn.className = 'modal-btn modal-btn-apply';
+    discordBtn.style.backgroundColor = '#5865f2';
+    discordBtn.onclick = () => {
+        window.open('https://dsc.gg/hexcapes', '_blank');
+    };
+
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = 'Close';
+    closeBtn.className = 'modal-btn modal-btn-cancel';
+    closeBtn.onclick = () => document.body.removeChild(modal);
+
+    buttonContainer.appendChild(discordBtn);
+    buttonContainer.appendChild(closeBtn);
+    modalContent.appendChild(buttonContainer);
+
+    modal.appendChild(modalContent);
+
+    const linkStyle = document.createElement('style');
+    linkStyle.textContent = `.cmd-link { display: inline-block; background: rgba(88, 101, 242, .25); border: 1px solid rgba(88, 101, 242, .5); color: #8be0ff; border-radius: 4px; padding: 2px 4px; text-decoration: none; font-size: 12px; }`;
+    modalContent.appendChild(linkStyle);
+
+    modal.onclick = (e) => {
+        if (e.target === modal) {
+            document.body.removeChild(modal);
+        }
+    };
+
+    document.body.appendChild(modal);
+}
+
 document.getElementById('how-to-use-btn').addEventListener('click', showTokenErrorModal);
 
 // extract the token from the url
@@ -115,29 +188,36 @@ const params = new URLSearchParams(window.location.search);
 
 const token = params.get("token");
 
-async function checkforToken(token) {
-    if (!token) {
-        showTokenErrorModal();
-    }
-}
-
-checkforToken(token);
+let userData = null;
 
 async function getuserdata(token) {
     const response = await fetch(`/profile/meta/${token}`);
-    const userData = await response.json();
-    console.log("User data:", userData);
-    return userData;
+    const data = await response.json();
+    console.log("User data:", data);
+    return data;
 }
 
-const userData = await getuserdata(token).catch(error => {
-    console.error("Error fetching user data:", error);
-    showTokenErrorModal();
-    return null;
-});
+async function init() {
+    if (!token) {
+        showTokenErrorModal();
+        return;
+    }
 
-if (!userData || userData.error) {
-    showTokenErrorModal();
+    userData = await getuserdata(token).catch(error => {
+        console.error("Error fetching user data:", error);
+        return null;
+    });
+
+    if (!userData || userData.error) {
+        showLoginModal();
+        return;
+    }
+}
+
+await init();
+
+if (!userData) {
+    throw new Error("Session invalid");
 }
 
 const discordid = userData?.userId ?? null;
@@ -147,6 +227,7 @@ const capeId = userData?.capeid ?? null;
 // Stop if user data is invalid
 if (!ign || !capeId) {
     showPopup("Invalid user data", "error", 3000);
+    throw new Error("Invalid user data");
 }
 
 // Initialize cape history with current cape
