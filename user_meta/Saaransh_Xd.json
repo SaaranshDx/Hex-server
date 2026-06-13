@@ -1,6 +1,7 @@
 {
-  "userid": "1189872646163284041",
-  "capeid": "cherryblossom",
-  "permissionlevel": 3,
-  "accountType": "microsoft"
+  "userId": "1189872646163284041",
+  "selectedCape": "cherryblossom",
+  "permissionLevel": 3,
+  "accountType": "microsoft",
+  "favorites": []
 }

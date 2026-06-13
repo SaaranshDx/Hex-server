@@ -7,6 +7,8 @@ const { setcape } = require("./utils/setcape");
 const { generateToken, validateToken } = require("./utils/tokenGen");
 const { getUserFromToken } = require("./utils/getUserFromToken");
 const { validateTokenBoolState } = require("./utils/tokenGen");
+const { addFav } = require("./utils/addFav");
+const { removeFav } = require("./utils/removeFav");
 const ngrok = require("@ngrok/ngrok");
 const { generateCapePreview } = require("./utils/capePreviews");
 const fs = require("fs");
@@ -458,6 +460,49 @@ app.get("/profile/meta/:token", async (req, res) => {
 
     res.send(userData);
 });
+
+// fav endpoint
+app.route("/fav")
+    .post(async (req, res) => {
+        try {
+            const { token, capeId } = req.body;
+
+            if (!token) {
+                return res.status(400).send({ error: "Token is required" });
+            }
+
+            if (!capeId) {
+                return res.status(400).send({ error: "capeId is required" });
+            }
+
+            const result = await addFav(token, capeId);
+
+            res.send(result);
+        } catch (error) {
+            console.error(error);
+            res.status(500).send({ error: "Internal server error" });
+        }
+    })
+    .delete(async (req, res) => {
+        try {
+            const { token, capeId } = req.body;
+
+            if (!token) {
+                return res.status(400).send({ error: "Token is required" });
+            }
+
+            if (!capeId) {
+                return res.status(400).send({ error: "capeId is required" });
+            }
+
+            const result = await removeFav(token, capeId);
+
+            res.send(result);
+        } catch (error) {
+            console.error(error);
+            res.status(500).send({ error: "Internal server error" });
+        }
+    });
 
 /* FormData fields: capeTexture -> required */
 

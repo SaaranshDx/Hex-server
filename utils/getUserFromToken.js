@@ -26,13 +26,14 @@ async function getUserFromToken(token) {
 
                     const ign = file.replace(".json", "");
 
-                    return {
-                        userId: userId,
-                        ign: ign,
-                        permissionLvl: data.permissionlevel,
-                        capeid: data.capeid
-                    };
-                }
+                return {
+                    userId: userId,
+                    ign: ign,
+                    permissionLvl: data.permissionlevel,
+                    capeid: data.capeid,
+                    favorites: data.favorites || []
+                };
+            }
             } catch (fileError) {
                 console.error(`Failed to process file ${file}:`, fileError);
             }
