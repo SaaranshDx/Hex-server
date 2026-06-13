@@ -7,7 +7,7 @@ function showPopup(message, type, duration) {
   const colors = {
     success: { border: '#58d8ff', icon: '✓' },
     error:   { border: '#e14c55', icon: '✕' },
-    warning: { border: '#ffbc44', icon: '⚠' },
+    warning: { border: '#e63030', icon: '⚠' },
     info:    { border: '#7f5cff', icon: 'ℹ' },
   };
 

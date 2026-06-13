@@ -521,8 +521,8 @@ button, input {
 
 .modal-btn-fav:hover {
     background: #14141e;
-    color: #ffbc44;
-    border-color: #ffbc44;
+    color: #e63030;
+    border-color: #e63030;
 }
 
 .modal-btn-fav.active {
@@ -755,7 +755,7 @@ button, input {
 }
 
 .fav-star.active {
-    color: #ffbc44;
+    color: #e63030;
 }
 
 /* ===== Popup ===== */
