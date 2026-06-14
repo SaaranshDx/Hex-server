@@ -181,11 +181,18 @@ function showLoginModal() {
 
 document.getElementById('how-to-use-btn').addEventListener('click', showTokenErrorModal);
 
-// extract the token from the url
 
 const params = new URLSearchParams(window.location.search);
 
+// extract the token from the url
+
 const token = params.get("token");
+
+// extract previewId from the url
+
+const previewId = params.get("previewId");
+
+
 
 let userData = null;
 
@@ -1183,3 +1190,17 @@ for (const btn of submitBtns) {
     }
 }
 
+if (previewId) {
+    setTimeout(async () => {
+        try {
+            const [preview, meta] = await Promise.all([
+                getcapepreviews(previewId),
+                getCapeMeta(previewId)
+            ]);
+            showCapePreview(previewId, preview, meta);
+        } catch (error) {
+            console.error("Error loading preview:", error);
+            showCapePreview(previewId, null, null);
+        }
+    }, 200);    
+}
