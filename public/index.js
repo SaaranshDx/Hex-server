@@ -60,7 +60,8 @@ const stepTexts = [
     '<i class="fa-solid fa-user-plus"></i> Run <code>/register &lt;ign&gt; &lt;acctype&gt;</code>.',
     '<i class="fa-solid fa-right-to-bracket"></i> Run <code>/login</code> and open the login link.',
     '<i class="fa-solid fa-shirt"></i> Upload, manage, and equip your capes from the Hex dashboard.',
-    '<i class="fa-solid fa-rocket"></i> Launch Minecraft and enjoy your cape <i class="fa-solid fa-crown"></i>'
+    '<i class="fa-solid fa-rocket"></i> Launch Minecraft and enjoy your cape <i class="fa-solid fa-crown"></i>',
+    'Alreay have an account? then click <a href="https://dash.hexcapes.qzz.io/?token=login_error_modal">here</a>.'
 ];
     stepTexts.forEach(html => {
         const li = document.createElement('li');
