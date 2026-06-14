@@ -16,6 +16,7 @@ function showPopup(message, type, duration) {
   const popup = document.createElement('div');
   popup.className = `popup ${type}`;
   popup.style.borderLeftColor = border;
+  popup.style.zIndex = '10001';
   popup.innerHTML = `${icon} ${message}`;
   document.body.appendChild(popup);
 
@@ -500,6 +501,16 @@ async function showCapePreview(capeId, preview, meta) {
         document.body.removeChild(modal);
     };
 
+    //share button
+    const shareBtn = document.createElement('button');
+    shareBtn.textContent = 'Share Cape';
+    shareBtn.className = 'modal-btn modal-btn-cancle';
+    shareBtn.onclick = () => {
+        navigator.clipboard.writeText("https://dash.hexcapes.qzz.io/?previewId=" + capeId).then(() => {
+            showPopup("Cape link copied to clipboard!", "success", 2000);
+        });
+    };
+
     // Cancel button
     const cancelBtn = document.createElement('button');
     cancelBtn.textContent = 'Cancel';
@@ -508,6 +519,7 @@ async function showCapePreview(capeId, preview, meta) {
 
     buttonContainer.appendChild(favBtn);
     buttonContainer.appendChild(applyBtn);
+    buttonContainer.appendChild(shareBtn);
     buttonContainer.appendChild(cancelBtn);
     modalContent.appendChild(buttonContainer);
 
