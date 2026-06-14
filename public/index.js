@@ -60,9 +60,10 @@ const stepTexts = [
     '<i class="fa-solid fa-hashtag"></i> Open <a class="cmd-link" href="https://discord.com/channels/1387030831142277240/1510559775107055726" target="_blank">#cmd</a>.',
     '<i class="fa-solid fa-user-plus"></i> Run <code>/register &lt;ign&gt; &lt;acctype&gt;</code>.',
     '<i class="fa-solid fa-right-to-bracket"></i> Run <code>/login</code> and open the login link.',
+    '<i class="fa-solid fa-download"></i> If you haven\'t installed the Hex mod yet, download it from <a class="cmd-link" href="https://modrinth.com/mod/hex-capes" target="_blank">Modrinth</a>.',
     '<i class="fa-solid fa-shirt"></i> Upload, manage, and equip your capes from the Hex dashboard.',
-    '<i class="fa-solid fa-rocket"></i> Launch Minecraft and enjoy your cape <i class="fa-solid fa-crown"></i>',
-    'Alreay have an account? then click <a href="https://dash.hexcapes.qzz.io/?token=login_error_modal">here</a>.'
+    '<i class="fa-solid fa-rocket"></i> Launch Minecraft and enjoy your cape <i class="fa-solid fa-crown"></i>.',
+    'Already have an account? then click <a href="https://dash.hexcapes.qzz.io/?token=login_error_modal">here</a>.'
 ];
     stepTexts.forEach(html => {
         const li = document.createElement('li');
