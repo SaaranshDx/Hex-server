@@ -199,6 +199,7 @@ async function getuserdata(token) {
 async function init() {
     if (!token) {
         showTokenErrorModal();
+        userData = null;
         return;
     }
 
@@ -209,24 +210,22 @@ async function init() {
 
     if (!userData || userData.error) {
         showLoginModal();
-        return;
+        userData = null;
     }
 }
 
 await init();
 
 if (!userData) {
-    throw new Error("Session invalid");
+    console.warn("No session data, running without personalization");
 }
 
 const discordid = userData?.userId ?? null;
 const ign = userData?.ign ?? null;
 const capeId = userData?.capeid ?? null;
 
-// Stop if user data is invalid
 if (!ign || !capeId) {
-    showPopup("Invalid user data", "error", 3000);
-    throw new Error("Invalid user data");
+    console.warn("Incomplete session data, running without personalization");
 }
 
 // Initialize cape history with current cape
@@ -266,22 +265,24 @@ function toggleFavorite(capeId) {
     }
 }
 
-const viewer = new skinview3d.SkinViewer({
-    canvas: document.getElementById("skin_container"),
-    width: 280,
-    height: 490,
-    skin: `https://minotar.net/skin/${ign}`,
-    cape: `/assets/capes/${capeId}.png`
-});
+const viewer = (ign && capeId)
+    ? new skinview3d.SkinViewer({
+        canvas: document.getElementById("skin_container"),
+        width: 280,
+        height: 490,
+        skin: `https://minotar.net/skin/${ign}`,
+        cape: `/assets/capes/${capeId}.png`
+    })
+    : null;
 
-document.getElementById("skin_container").addEventListener('wheel', (e) => {
+document.getElementById("skin_container")?.addEventListener('wheel', (e) => {
     e.preventDefault();
 }, { passive: false });
 
-viewer.animation =
-    new skinview3d.IdleAnimation();
-
-viewer.playerObject.rotation.y = -158 * Math.PI / 180;    
+if (viewer) {
+    viewer.animation = new skinview3d.IdleAnimation();
+    viewer.playerObject.rotation.y = -158 * Math.PI / 180;
+}   
 
 
 function updateviewerinfo(capeId, ign, discordid) {
@@ -304,7 +305,9 @@ function updateviewerinfo(capeId, ign, discordid) {
     }
 }
 
-updateviewerinfo(capeId, ign, discordid);
+if (ign && capeId) {
+    updateviewerinfo(capeId, ign, discordid);
+}
 
 //get capes list
 
@@ -368,9 +371,10 @@ async function applyCape(newCapeId) {
         const result = await response.json();
 
         if (result.success) {
-            // Update viewer
-            viewer.loadCape(`/assets/capes/${String(newCapeId)}.png`);
-            
+            if (viewer) {
+                viewer.loadCape(`/assets/capes/${String(newCapeId)}.png`);
+            }
+
             // Update history
             historyIndex++;
             capeHistory = capeHistory.slice(0, historyIndex);
@@ -398,7 +402,9 @@ function undoCape() {
     if (historyIndex > 0) {
         historyIndex--;
         const prevCapeId = capeHistory[historyIndex];
-        viewer.loadCape(`/assets/capes/${String(prevCapeId)}.png`);
+        if (viewer) {
+            viewer.loadCape(`/assets/capes/${String(prevCapeId)}.png`);
+        }
         updateCapeHighlight();
         showPopup(`Undid to cape ${prevCapeId}`, "info", 2000);
     } else {
@@ -547,7 +553,9 @@ function redoCape() {
         historyIndex++;
         const nextCapeId = capeHistory[historyIndex];
         updateCapeHighlight();
-        viewer.loadCape(`/assets/capes/${String(nextCapeId)}.png`);
+        if (viewer) {
+            viewer.loadCape(`/assets/capes/${String(nextCapeId)}.png`);
+        }
         showPopup(`Redid to cape ${nextCapeId}`, "info", 2000);
     } else {
         showPopup("Nothing to redo", "warning", 2000);
