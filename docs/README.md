@@ -8,4 +8,4 @@ Built around simplicity and reliability, Hex allows creators to publish capes, g
 
 # Get Started
 
-Use the linked [Installation Guide](/installation-guide.md) to set everything up
+Use the linked [Installation Guide](installation-guide.md) to set everything up
