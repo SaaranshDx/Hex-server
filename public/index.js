@@ -1216,5 +1216,5 @@ if (previewId) {
             console.error("Error loading preview:", error);
             showCapePreview(previewId, null, null);
         }
-    }, 200);    
+    }, );    
 }
