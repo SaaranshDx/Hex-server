@@ -12,6 +12,6 @@
   <a href="https://dsc.gg/hexcapes"><strong>Community</strong></a> ·
   <a href="https://hexcapes.qzz.io"><strong>Catalog</strong></a> ·
   <a href="https://hexcapes.qzz.io/uptime"><strong>Uptime</strong></a> ·
-  <a href="https://github.com/SaaranshDx/Hex-server/tree/main/docs"><strong>Docs</strong></a>
+  <a href="https://hexcapes.qzz.io/docs"><strong>Docs</strong></a>
 </p>
 <br/>
