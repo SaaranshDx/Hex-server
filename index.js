@@ -710,9 +710,31 @@ app.get("/api/version", (req, res) => {
 });
 
 
+const { spawn } = require("child_process");
 
 client.login(process.env.DISCORD_TOKEN);
 
 app.listen(SERVICE_PORT, () => {
     console.log(`Hex server running on port ${SERVICE_PORT}`);
+
+    if (process.env.CLOUDFLARE_TUNNEL === "true") {
+        console.log("Starting Cloudflare Tunnel...");
+
+        const tunnel = spawn(
+            "cloudflared",
+            ["tunnel", "run", "hex"],
+            {
+                stdio: "inherit",
+                shell: true
+            }
+        );
+
+        tunnel.on("error", (err) => {
+            console.error("Cloudflared failed to start:", err);
+        });
+
+        tunnel.on("exit", (code) => {
+            console.log(`Cloudflared exited with code ${code}`);
+        });
+    }
 });
