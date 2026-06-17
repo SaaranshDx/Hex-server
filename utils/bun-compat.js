@@ -52,5 +52,6 @@ const BunCompat = {
         }
     }
 };
-
-export default BunCompat;
+// exporting as bun to maintain compatibility with existing code that imports Bun
+const Bun = BunCompat;
+export default Bun;
