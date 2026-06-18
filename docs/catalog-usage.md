@@ -2,6 +2,10 @@
 
 this guide tells you how to login and select your cape using hex
 
+\
+
+## Catalog usage
+
 1. In our [Discord Server](https://dsc.gg/hexcapes) goto the [#cmd](https://discord.com/channels/1387030831142277240/1510559775107055726) channle and 
 2. And run the command:
 
@@ -15,11 +19,11 @@ Then:
 
 After doing that you would be redirected to the catalog page where you can select the capes
 
-# Bedrock Catalog
+## Bedrock Catalog
 
-Bedrock Edition users can generate `.mcpack` cape packs directly from the browser using the Bedrock Pack Generator at `/bedrock`.
+Bedrock Edition users can generate `.mcpack` cape packs directly from the browser using the Bedrock Pack Generator at `https://dash.hexcapes.qzz.io/bedrock`.
 
-1. Navigate to `/bedrock` on the Hex website
+1. Navigate to `https://dash.hexcapes.qzz.io/bedrock` on the Hex website
 2. Browse the Cape Library - use the search bar to find capes by ID or author, and filter by category tabs (All, Hex, Community, Partner, Staff, Mojang)
 3. Click a cape to select it - a 3D preview will show the cape on a player model
 4. Enter a custom pack name (optional)
