@@ -238,8 +238,13 @@ async function generatePack() {
     if (!manifestFile) throw new Error("manifest.json missing from template");
 
     const manifest = JSON.parse(await manifestFile.async("string"));
+    const meta = await fetchCapeMeta(state.selectedCapeId).catch(() => ({
+      authorName: state.selectedCapeId,
+      category: "Hex",
+    }));
     manifest.header.name = packName;
-    manifest.header.description = `${packName} generated in Hex Bedrock Studio`;
+    manifest.header.description = `Cape ${state.selectedCapeId} by ${meta.authorName} packaged with Hex (https://hexcapes.qzz.io)`;
+    manifest.header.author = meta.authorName;
     manifest.header.uuid = uuidv4();
     if (Array.isArray(manifest.modules)) {
       manifest.modules.forEach((m) => { m.uuid = uuidv4(); });
