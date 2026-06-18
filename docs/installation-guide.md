@@ -160,7 +160,7 @@ This guide will walk you through installing PiCapes and setting up the recommend
       <h2>Bedrock Pack Generator</h2>
       <span class="tag tag--secondary">Bedrock</span>
       <p>Browse and download capes as .mcpack files for Minecraft Bedrock Edition</p>
-      <a class="button button--secondary" href="/bedrock">Open Bedrock Catalog</a>
+      <a class="button button--secondary" href="https://hexcapes.qzz.io/bedrock">Open Bedrock Catalog</a>
       <p class="small">No mod required - works with vanilla Bedrock Edition</p>
     </div>
   </div>
