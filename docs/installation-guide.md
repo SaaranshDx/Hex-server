@@ -150,7 +150,7 @@ This guide will walk you through installing PiCapes and setting up the recommend
       <span class="tag tag--recommended">Recommended</span>
       <p>The recommended way to use Hex on modern Minecraft </p>
       <a class="button button--primary" href="https://modrinth.com/mod/hex-cape">Download Fabric Mod</a>
-      <p class="small">for Minecraft Fabric 1.21.4 and above</p>
+      <p class="small">for Minecraft Fabric 1.21.1 and above</p>
     </div>
   </div>
 
