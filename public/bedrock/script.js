@@ -34,6 +34,23 @@ function sanitizeFileName(name) {
   return (name || "Hex_Bedrock_Cape").replace(/[^a-z0-9-_]+/gi, "_").replace(/_+/g, "_").replace(/^_|_$/g, "") || "Hex_Bedrock_Cape";
 }
 
+async function getSelectedCapeTexture() {
+  try {
+    const response = await fetch(
+      `/assets/capes/${state.selectedCapeId}.png`
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    return await response.blob();
+  } catch (error) {
+    console.error("Failed to fetch selected cape texture:", error);
+    return null;
+  }
+}
+
 function setStatus(message, type) {
   const icons = { success: "circle-check", error: "triangle-exclamation" };
   const icon = icons[type] || "circle-info";
@@ -164,6 +181,7 @@ async function selectCape(capeId) {
 
   els.selectedCapeDisplay.textContent = capeId;
   els.selectedCapeDisplay.className = "field-value";
+  els.packName.value = `${capeId} Cape`;
   els.generateBtn.disabled = false;
   els.sharePackBtn.disabled = true;
 
@@ -212,8 +230,8 @@ async function generatePack() {
   try {
     const zipBuffer = await state.templateZip.generateAsync({ type: "uint8array" });
     const newZip = await JSZip.loadAsync(zipBuffer);
-
-    newZip.file("textures/entity/cape_invisible.png", state.selectedCapeBlob);
+    const capeBlob = await getSelectedCapeTexture();
+    newZip.file("textures/entity/cape_invisible.png", capeBlob);
     newZip.file("pack_icon.png", state.selectedCapeBlob);
 
     const manifestFile = newZip.file("manifest.json");
