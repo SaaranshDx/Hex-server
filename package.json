@@ -1,7 +1,7 @@
 {
-  "name": "ghostbot",
+  "name": "hex-server",
   "version": "1.0.0",
-  "description": "a discord client for ghostdrop",
+  "description": "the backend service used by Hex (https://hexcapes.qzz.io) the minecraft cosmetics project",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
