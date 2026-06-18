@@ -21,9 +21,9 @@ After doing that you would be redirected to the catalog page where you can selec
 
 ## Bedrock Catalog
 
-Bedrock Edition users can generate `.mcpack` cape packs directly from the browser using the Bedrock Pack Generator at `https://dash.hexcapes.qzz.io/bedrock`.
+Bedrock Edition users can generate `.mcpack` cape packs directly from the browser using the Bedrock Pack Generator at [https://dash.hexcapes.qzz.io/bedrock](https://dash.hexcapes.qzz.io/bedrock).
 
-1. Navigate to `https://dash.hexcapes.qzz.io/bedrock` on the Hex website
+1. Navigate to [https://dash.hexcapes.qzz.io/bedrock](https://dash.hexcapes.qzz.io/bedrock) on the Hex website
 2. Browse the Cape Library - use the search bar to find capes by ID or author, and filter by category tabs (All, Hex, Community, Partner, Staff, Mojang)
 3. Click a cape to select it - a 3D preview will show the cape on a player model
 4. Enter a custom pack name (optional)
