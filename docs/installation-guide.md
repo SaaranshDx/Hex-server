@@ -157,12 +157,9 @@ This guide will walk you through installing PiCapes and setting up the recommend
   <div class="install-card install-card--secondary">
     <img class="install-card__icon" src="https://minecraft.wiki/images/thumb/Bedrock_Edition_Google_Play_icon_1.png/240px-Bedrock_Edition_Google_Play_icon_1.png?daf7c"
     <div>
-      <h2>Bedrock Pack Generator</h2>
-      <span class="tag tag--secondary">Bedrock</span>
+      <h2>Bedrock Edition</h2>
       <p>Browse and download capes as .mcpack files for Minecraft Bedrock Edition</p>
       <a class="button button--secondary" href="https://hexcapes.qzz.io/bedrock">Open Bedrock Catalog</a>
-      <p class="small">No mod required - works with vanilla Bedrock Edition</p>
-    </div>
   </div>
 
   </div>
