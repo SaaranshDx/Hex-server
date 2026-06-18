@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hex Bedrock Pack Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<div class="app-container">
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">
+                <span class="logo-icon">&#9670;</span>
+                <span class="logo-text">Hex Bedrock</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <button class="header-btn" id="template-info-btn">
+                <i class="fa-solid fa-file-zipper"></i> Template
+            </button>
+            <button class="header-btn" id="open-share-link">
+                <i class="fa-solid fa-share-nodes"></i> Share
+            </button>
+        </div>
+    </header>
+
+    <div class="main-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h3>Pack Preview</h3>
+                <span id="template-state" class="template-badge">Loading</span>
+            </div>
+            <canvas id="skin_container" width="280" height="490"></canvas>
+            <div class="pack-controls">
+                <div class="field-row">
+                    <span class="field-label">Cape</span>
+                    <span id="selected-cape-display" class="field-value muted">None selected</span>
+                </div>
+                <div class="field-row">
+                    <label class="field-label" for="pack-name">Pack name</label>
+                    <input type="text" id="pack-name" value="Hex Bedrock Cape" class="field-input">
+                </div>
+                <button class="primary-btn" id="generate-btn" disabled>
+                    <i class="fa-solid fa-box-open"></i> Generate .mcpack
+                </button>
+                <button class="secondary-btn" id="share-pack-btn" disabled>
+                    <i class="fa-solid fa-share-nodes"></i> Share pack
+                </button>
+            </div>
+            <div id="status" class="status-banner">
+                <i class="fa-solid fa-spinner fa-spin"></i> Loading template...
+            </div>
+        </aside>
+
+        <main class="content">
+            <section class="cape-library-section">
+                <h2>Cape Library</h2>
+                <div class="catalog-toolbar">
+                    <div class="search-container">
+                        <input id="catalog-search" type="text" placeholder="Search by cape ID or author..." class="search-input">
+                    </div>
+                    <div class="tab-bar" id="catalog-tabs">
+                        <button class="tab-btn active" data-tab="all">All</button>
+                        <button class="tab-btn" data-tab="hex">Hex</button>
+                        <button class="tab-btn" data-tab="community">Community</button>
+                        <button class="tab-btn" data-tab="partner">Partner</button>
+                        <button class="tab-btn" data-tab="staff">Staff</button>
+                        <button class="tab-btn" data-tab="mojang">Mojang</button>
+                    </div>
+                </div>
+                <div id="cape-selector-wrapper">
+                    <div id="loading-spinner" class="loading-spinner">
+                        <i class="fa-solid fa-spinner fa-spin"></i>
+                        <p>Loading capes...</p>
+                    </div>
+                    <div id="cape-selector" class="cape-grid"></div>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+<script src="../packages/skinview3d.bundle.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<script src="./script.js"></script>
+</body>
+</html>
