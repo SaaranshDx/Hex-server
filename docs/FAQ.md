@@ -16,7 +16,7 @@ Hex is free to use and core functionality will remain available to everyone.
 
 ## Does Hex support Minecraft Bedrock Edition?
 
-Yes. Hex has a Bedrock Pack Generator at `/bedrock` that lets you browse the full cape library and generate `.mcpack` files for Bedrock Edition. You can search and filter capes, preview them on a 3D model, and download a ready-to-install pack.
+Yes. Hex has a Bedrock Pack Generator at [https://dash.hexcapes.qzz.io/bedrock](https://dash.hexcapes.qzz.io/bedrocks) that lets you browse the full cape library and generate `.mcpack` files for Bedrock Edition. You can search and filter capes, preview them on a 3D model, and download a ready-to-install pack.
 
 ## Who can see my capes?
 
