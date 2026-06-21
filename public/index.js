@@ -444,12 +444,29 @@ async function showCapePreview(capeId, preview, meta) {
         modalContent.appendChild(authorEl);
     }
 
-    // Cape preview image
-    if (preview) {
-        const img = document.createElement('img');
-        img.src = URL.createObjectURL(preview);
-        modalContent.appendChild(img);
-    }
+    // 3D player preview with cape
+    const previewCanvas = document.createElement('canvas');
+    previewCanvas.width = 280;
+    previewCanvas.height = 400;
+    previewCanvas.style.cssText = 'width: 100%; max-width: 280px; margin: 0 auto; border-radius: 12px;';
+    modalContent.appendChild(previewCanvas);
+
+    const previewViewer = new skinview3d.SkinViewer({
+        canvas: previewCanvas,
+        width: 280,
+        height: 400,
+        skin: `https://minotar.net/skin/${ign || 'Steve'}`,
+        cape: `/assets/capes/${capeId}.png`
+    });
+    previewViewer.animation = new skinview3d.IdleAnimation();
+    previewViewer.playerObject.rotation.y = -158 * Math.PI / 180;
+
+    const disposeViewer = () => {
+        previewViewer.animation = null;
+        if (typeof previewViewer.dispose === 'function') {
+            previewViewer.dispose();
+        }
+    };
 
     // Button container
     const buttonContainer = document.createElement('div');
@@ -498,6 +515,7 @@ async function showCapePreview(capeId, preview, meta) {
     applyBtn.textContent = 'Apply Cape';
     applyBtn.className = 'modal-btn modal-btn-apply';
     applyBtn.onclick = () => {
+        disposeViewer();
         applyCape(capeId);
         document.body.removeChild(modal);
     };
@@ -516,7 +534,10 @@ async function showCapePreview(capeId, preview, meta) {
     const cancelBtn = document.createElement('button');
     cancelBtn.textContent = 'Cancel';
     cancelBtn.className = 'modal-btn modal-btn-cancel';
-    cancelBtn.onclick = () => document.body.removeChild(modal);
+    cancelBtn.onclick = () => {
+        disposeViewer();
+        document.body.removeChild(modal);
+    };
 
     buttonContainer.appendChild(favBtn);
     buttonContainer.appendChild(applyBtn);
@@ -529,6 +550,7 @@ async function showCapePreview(capeId, preview, meta) {
     // Close on overlay click
     modal.onclick = (e) => {
         if (e.target === modal) {
+            disposeViewer();
             document.body.removeChild(modal);
         }
     };
@@ -1202,6 +1224,335 @@ for (const btn of submitBtns) {
         btn.onclick = openSubmitModal;
         break;
     }
+}
+
+const accountChip = document.getElementById('header-account-chip');
+if (accountChip) {
+    accountChip.addEventListener('click', () => showAccountInfoModal(token));
+}
+
+function getAccountRoleLabel(level) {
+    if (level >= 4) return 'Admin';
+    if (level >= 3) return 'Staff';
+    if (level >= 2) return 'Partner';
+    return 'Member';
+}
+
+async function showAccountInfoModal(currentToken) {
+    const tokenToUse = typeof currentToken === 'string' && currentToken ? currentToken : token;
+    if (!tokenToUse) {
+        showLoginModal();
+        return;
+    }
+
+    if (document.getElementById('account-info-modal')) {
+        return;
+    }
+
+    let response;
+    let userInfo;
+    try {
+        response = await fetch(`/accountdata/${encodeURIComponent(tokenToUse)}`);
+        userInfo = await response.json();
+    } catch (error) {
+        console.error('Error fetching account info:', error);
+        showPopup('Failed to fetch account info', 'error', 3000);
+        return;
+    }
+
+    if (!userInfo || !userInfo.success) {
+        if (response?.status === 401) {
+            showLoginModal();
+            return;
+        }
+        showPopup(userInfo?.message || 'Failed to fetch account info', 'error', 3000);
+        return;
+    }
+
+    const avatarUrl = userInfo.ign
+        ? `https://minotar.net/avatar/${encodeURIComponent(userInfo.ign)}`
+        : 'https://minotar.net/avatar/Steve';
+    const capePreviewUrl = userInfo.capeid ? `/assets/capes/${encodeURIComponent(userInfo.capeid)}.png` : null;
+    const discordText = userInfo.discordTag || (userInfo.userId ? `<@${userInfo.userId}>` : 'Unknown');
+    const roleLabel = getAccountRoleLabel(userInfo.permissionLvl ?? 0);
+    const favoriteCount = Array.isArray(userInfo.favorites) ? userInfo.favorites.length : 0;
+    const totalCapes = Array.isArray(userInfo.capes)
+        ? userInfo.capes.length
+        : typeof userInfo.capeCount === 'number'
+            ? userInfo.capeCount
+            : 0;
+
+    const overlay = document.createElement('div');
+    overlay.id = 'account-info-modal';
+    overlay.className = 'modal-overlay';
+    overlay.style.zIndex = '10000';
+    overlay.style.padding = '24px';
+
+    const modal = document.createElement('div');
+    modal.className = 'modal-content';
+    modal.style.cssText = `
+        max-width: 900px;
+        width: 95%;
+        max-height: 90vh;
+        overflow-y: auto;
+        background: #0b0b14;
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 20px;
+        padding: 28px;
+        box-shadow: 0 30px 80px rgba(0,0,0,0.35);
+        color: #e5e7eb;
+    `;
+
+    const header = document.createElement('div');
+    header.style.display = 'flex';
+    header.style.alignItems = 'center';
+    header.style.gap = '16px';
+    header.style.marginBottom = '20px';
+
+    const avatar = document.createElement('div');
+    avatar.style.width = '90px';
+    avatar.style.height = '90px';
+    avatar.style.borderRadius = '50%';
+    avatar.style.backgroundImage = `url('${avatarUrl}')`;
+    avatar.style.backgroundSize = 'cover';
+    avatar.style.backgroundPosition = 'center';
+    avatar.style.border = '2px solid rgba(88, 216, 255, 0.28)';
+    avatar.style.flexShrink = '0';
+    header.appendChild(avatar);
+
+    const headerText = document.createElement('div');
+    headerText.style.flex = '1 1 auto';
+
+    const title = document.createElement('h2');
+    title.textContent = userInfo.ign || 'Unknown Player';
+    title.style.margin = '0 0 6px';
+    title.style.fontSize = '24px';
+    title.style.color = '#ffffff';
+
+    const subtitle = document.createElement('p');
+    subtitle.textContent = discordText;
+    subtitle.style.margin = '0 0 8px';
+    subtitle.style.color = '#9ca3af';
+
+    const metaLine = document.createElement('p');
+    metaLine.textContent = `${roleLabel} · ${userInfo.capeid ? `Equipped cape ${userInfo.capeid}` : 'No cape equipped'}`;
+    metaLine.style.margin = '0';
+    metaLine.style.color = '#8b98a8';
+    metaLine.style.fontSize = '0.95rem';
+
+    headerText.appendChild(title);
+    headerText.appendChild(subtitle);
+    headerText.appendChild(metaLine);
+    header.appendChild(headerText);
+
+    modal.appendChild(header);
+
+    // Tab bar
+    const tabBar = document.createElement('div');
+    tabBar.style.cssText = 'display: flex; gap: 0; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.08);';
+
+    const setActiveTab = (active) => {
+        [profileTabBtn, capesTabBtn].forEach(b => {
+            const isActive = b === active;
+            b.dataset.active = String(isActive);
+            b.style.color = isActive ? '#58d8ff' : '#666';
+            b.style.borderBottomColor = isActive ? '#58d8ff' : 'transparent';
+            b.style.fontWeight = isActive ? '600' : '500';
+        });
+        profileContainer.style.display = active === profileTabBtn ? '' : 'none';
+        capesContainer.style.display = active === capesTabBtn ? '' : 'none';
+        if (active === capesTabBtn && previewViewer) {
+            disposeViewer();
+        }
+    };
+
+    const profileTabBtn = document.createElement('button');
+    profileTabBtn.textContent = 'Profile';
+    profileTabBtn.style.cssText = 'padding: 8px 16px; background: none; border: none; color: #58d8ff; border-bottom: 2px solid #58d8ff; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s;';
+    profileTabBtn.onclick = () => setActiveTab(profileTabBtn);
+
+    const capesTabBtn = document.createElement('button');
+    capesTabBtn.textContent = `My Capes (${totalCapes})`;
+    capesTabBtn.style.cssText = 'padding: 8px 16px; background: none; border: none; color: #666; border-bottom: 2px solid transparent; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s;';
+    capesTabBtn.onclick = () => setActiveTab(capesTabBtn);
+
+    tabBar.appendChild(profileTabBtn);
+    tabBar.appendChild(capesTabBtn);
+    modal.appendChild(tabBar);
+
+    // Profile tab content
+    const profileContainer = document.createElement('div');
+
+    const contentGrid = document.createElement('div');
+    contentGrid.style.display = 'grid';
+    contentGrid.style.gridTemplateColumns = capePreviewUrl ? '1fr 1fr' : '1fr';
+    contentGrid.style.gap = '20px';
+    contentGrid.style.marginBottom = '20px';
+
+    let previewViewer = null;
+    let disposeViewer = () => {};
+
+    if (capePreviewUrl) {
+        const previewCanvas = document.createElement('canvas');
+        previewCanvas.width = 400;
+        previewCanvas.height = 500;
+        previewCanvas.style.cssText = 'width: 100%; border-radius: 16px; min-height: 300px;';
+        contentGrid.appendChild(previewCanvas);
+
+        previewViewer = new skinview3d.SkinViewer({
+            canvas: previewCanvas,
+            width: 400,
+            height: 500,
+            skin: `https://minotar.net/skin/${userInfo.ign || 'Steve'}`,
+            cape: capePreviewUrl
+        });
+        previewViewer.animation = new skinview3d.IdleAnimation();
+        previewViewer.playerObject.rotation.y = -158 * Math.PI / 180;
+
+        disposeViewer = () => {
+            if (previewViewer) {
+                previewViewer.animation = null;
+                if (typeof previewViewer.dispose === 'function') {
+                    previewViewer.dispose();
+                }
+                previewViewer = null;
+            }
+        };
+    }
+
+    const statsContainer = document.createElement('div');
+    statsContainer.style.display = 'grid';
+    statsContainer.style.gap = '10px';
+
+    const statRows = [
+        ['Discord ID', userInfo.userId || 'Unknown'],
+        ['Favorites', String(favoriteCount)],
+        ['Total capes', String(totalCapes)],
+        ['Role', roleLabel],
+        ['Current cape', userInfo.capeid ? String(userInfo.capeid) : 'None'],
+    ];
+
+    statRows.forEach(([label, value]) => {
+        const row = document.createElement('div');
+        row.style.display = 'flex';
+        row.style.justifyContent = 'space-between';
+        row.style.alignItems = 'center';
+        row.style.padding = '12px 14px';
+        row.style.background = 'rgba(255,255,255,0.03)';
+        row.style.border = '1px solid rgba(255,255,255,0.05)';
+        row.style.borderRadius = '14px';
+
+        const labelEl = document.createElement('span');
+        labelEl.textContent = label;
+        labelEl.style.color = '#9ca3af';
+        labelEl.style.fontSize = '0.95rem';
+
+        const valueEl = document.createElement('span');
+        valueEl.textContent = value;
+        valueEl.style.color = '#ffffff';
+        valueEl.style.fontWeight = '600';
+        valueEl.style.fontSize = '0.95rem';
+
+        row.appendChild(labelEl);
+        row.appendChild(valueEl);
+        statsContainer.appendChild(row);
+    });
+
+    contentGrid.appendChild(statsContainer);
+    profileContainer.appendChild(contentGrid);
+    modal.appendChild(profileContainer);
+
+    // My Capes tab content
+    const capesContainer = document.createElement('div');
+    capesContainer.style.display = 'none';
+
+    const capes = Array.isArray(userInfo.capes) ? userInfo.capes : [];
+
+    if (capes.length === 0) {
+        const emptyMsg = document.createElement('p');
+        emptyMsg.textContent = 'You haven\'t created any capes yet.';
+        emptyMsg.style.cssText = 'text-align: center; color: #666; padding: 2rem 0;';
+        capesContainer.appendChild(emptyMsg);
+    } else {
+        const capesGrid = document.createElement('div');
+        capesGrid.style.cssText = 'display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px;';
+
+        for (const cape of capes) {
+            const capeId = cape.id;
+            const authorName = cape.authorName || 'Unknown';
+            const cat = cape.category || 'Hex';
+
+            const item = document.createElement('div');
+            item.dataset.capeId = capeId;
+            item.style.cssText = 'cursor: pointer; padding: 8px 4px; border-bottom: 1px solid rgba(255,255,255,0.05);';
+            item.onmouseenter = () => { item.style.background = 'rgba(255,255,255,0.03)'; };
+            item.onmouseleave = () => { item.style.background = 'transparent'; };
+            item.onclick = async () => {
+                const meta = await getCapeMeta(capeId);
+                showCapePreview(capeId, null, meta);
+            };
+
+            const label = document.createElement('div');
+            label.innerHTML = `
+                <div style="color: #ccc; font-size: 14px; font-weight: 600; margin-bottom: 2px;">${capeId}</div>
+                <div style="color: #666; font-size: 12px;">@${authorName}</div>
+                <div style="color: #555; font-size: 11px; margin-top: 2px;">${cat}</div>
+            `;
+
+            item.appendChild(label);
+            capesGrid.appendChild(item);
+        }
+
+        capesContainer.appendChild(capesGrid);
+
+        // load preview images
+        for (const cape of capes) {
+            getcapepreviews(cape.id).then(preview => {
+                if (!preview) return;
+                const item = capesGrid.querySelector(`[data-cape-id="${cape.id}"]`);
+                if (item) {
+                    const img = document.createElement('img');
+                    img.src = URL.createObjectURL(preview);
+                    img.style.cssText = 'width: 100%; border-radius: 8px; margin-bottom: 8px;';
+                    item.insertBefore(img, item.firstChild);
+                }
+            });
+        }
+    }
+
+    modal.appendChild(capesContainer);
+
+    const buttons = document.createElement('div');
+    buttons.style.display = 'flex';
+    buttons.style.justifyContent = 'flex-end';
+    buttons.style.gap = '10px';
+    buttons.style.flexWrap = 'wrap';
+
+    const closeButton = document.createElement('button');
+    closeButton.textContent = 'Close';
+    closeButton.className = 'modal-btn modal-btn-cancel';
+    closeButton.style.padding = '10px 16px';
+    closeButton.style.border = '1px solid rgba(255,255,255,0.08)';
+    closeButton.style.background = 'transparent';
+    closeButton.style.color = '#d1d5db';
+    closeButton.style.borderRadius = '10px';
+    closeButton.style.cursor = 'pointer';
+    closeButton.onclick = () => {
+        disposeViewer();
+        overlay.remove();
+    };
+
+    buttons.appendChild(closeButton);
+    modal.appendChild(buttons);
+
+    overlay.appendChild(modal);
+    overlay.onclick = (e) => {
+        if (e.target === overlay) {
+            disposeViewer();
+            overlay.remove();
+        }
+    };
+    document.body.appendChild(overlay);
 }
 
 if (previewId) {

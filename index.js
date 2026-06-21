@@ -250,6 +250,40 @@ function generateCapeId() {
     return id;
 }
 
+async function getCapesByAuthor(authorId) {
+    const capeMetaDir = path.join(__dirname, "cape_meta");
+    if (!fs.existsSync(capeMetaDir)) {
+        return [];
+    }
+
+    try {
+        const files = await fs.promises.readdir(capeMetaDir);
+        const authored = [];
+
+        for (const file of files) {
+            if (!file.endsWith(".json")) {
+                continue;
+            }
+
+            const filePath = path.join(capeMetaDir, file);
+            const raw = await fs.promises.readFile(filePath, "utf-8");
+            const metadata = JSON.parse(raw);
+
+            if (metadata.authorId === authorId) {
+                authored.push({
+                    id: file.replace(/\.json$/, ""),
+                    ...metadata
+                });
+            }
+        }
+
+        return authored;
+    } catch (error) {
+        console.error("Error fetching authored capes:", error);
+        return [];
+    }
+}
+
 // routes
 
 app.use(express.static("public"));
@@ -709,6 +743,31 @@ app.get("/api/version", (req, res) => {
 
 });
 
+app.get("/accountdata/:token", async (req, res) => {
+    const { token } = req.params;
+    
+    if (!token) {
+        return res.status(400).send({ error: "Token is required" });
+    }
+
+    const userData = await getUserFromToken(token);
+    
+    if (!userData) {
+        return res.status(401).send({ error: "Invalid or expired token" });
+    }
+
+    const capes = await getCapesByAuthor(userData.userId);
+
+    res.send({
+        success: true,
+        ign: userData.ign,
+        permissionLvl: userData.permissionLvl,
+        userId: userData.userId,
+        capeid: userData.capeid,
+        favorites: userData.favorites || [],
+        capes: capes
+    });
+});
 
 const { spawn } = require("child_process");
 
