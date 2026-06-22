@@ -301,22 +301,17 @@ async function fetchCapePreview(capeId) {
 }
 
 function placeholderPreview(capeId) {
+
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
-      <defs>
-        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="#0f95ff"/>
-          <stop offset="100%" stop-color="#58d8ff"/>
-        </linearGradient>
-      </defs>
       <rect width="256" height="256" fill="#0a0a0e"/>
       <rect x="14" y="14" width="228" height="228" rx="22" fill="url(#g)" opacity="0.16"/>
       <text x="128" y="118" text-anchor="middle" fill="#d7f7ff" font-family="Arial, sans-serif" font-size="34" font-weight="700">Cape ${capeId}</text>
-      <text x="128" y="150" text-anchor="middle" fill="#8c96a8" font-family="Arial, sans-serif" font-size="14">Loading preview</text>
     </svg>
   `;
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
-}
+  
+  }
 
 function createCatalogCard(capeId) {
   const card = document.createElement("div");
