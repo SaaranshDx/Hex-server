@@ -743,6 +743,19 @@ app.get("/api/version", (req, res) => {
 
 });
 
+app.get("/template/:platform", (req, res) => {
+    const { platform } = req.params;
+
+    if (platform === "java") {
+        res.sendFile(path.join(__dirname, "public", "templates.zip"));
+    } else if (platform === "bedrock") {
+        res.sendFile(path.join(__dirname, "public", "bedrock", "Cape_Template.zip"));
+    } else {
+        res.status(400).send({
+            error: "Invalid platform. Use 'java' or 'bedrock'."
+        });
+    }
+});
 app.get("/accountdata/:token", async (req, res) => {
     const { token } = req.params;
     
