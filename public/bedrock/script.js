@@ -71,6 +71,7 @@ function initViewer() {
       height: 490,
       skin: "https://minotar.net/skin/vrsebr",
     });
+    viewer.controls.enableZoom = false;
     viewer.animation = new skinview3d.IdleAnimation();
     viewer.playerObject.rotation.y = -158 * Math.PI / 180;
     els.skinContainer.addEventListener("wheel", (e) => e.preventDefault(), { passive: false });

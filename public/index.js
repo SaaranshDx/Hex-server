@@ -290,6 +290,7 @@ document.getElementById("skin_container")?.addEventListener('wheel', (e) => {
 }, { passive: false });
 
 if (viewer) {
+    viewer.controls.enableZoom = false;
     viewer.animation = new skinview3d.IdleAnimation();
     viewer.playerObject.rotation.y = -158 * Math.PI / 180;
 }   
@@ -458,6 +459,7 @@ async function showCapePreview(capeId, preview, meta) {
         skin: `https://minotar.net/skin/${ign || 'Steve'}`,
         cape: `/assets/capes/${capeId}.png`
     });
+    previewViewer.controls.enableZoom = false;
     previewViewer.animation = new skinview3d.IdleAnimation();
     previewViewer.playerObject.rotation.y = -158 * Math.PI / 180;
 
@@ -1406,6 +1408,7 @@ async function showAccountInfoModal(currentToken) {
             skin: `https://minotar.net/skin/${userInfo.ign || 'Steve'}`,
             cape: capePreviewUrl
         });
+        previewViewer.controls.enableZoom = false;
         previewViewer.animation = new skinview3d.IdleAnimation();
         previewViewer.playerObject.rotation.y = -158 * Math.PI / 180;
 
