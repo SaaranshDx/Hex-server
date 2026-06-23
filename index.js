@@ -330,6 +330,34 @@ app.use(
 );
 
 app.use(
+    "assets/skins",
+    express.static("assets/skins")
+)
+
+app.post("/assets/skins", async (req, res) => {
+    const { token, skinBase64 } = req.body;
+
+    const userData = await getUserFromToken(token);
+
+    const ign = userData ? userData.ign : null;
+
+    if (!ign || !skinBase64) {
+        return res.status(400).send({ error: "Both 'ign' and 'skinBase64' are required" });
+    }
+
+    const skinBuffer = Buffer.from(skinBase64, "base64");
+    const skinPath = path.join(__dirname, "assets", "skins", `${ign}.png`);
+
+    try {
+        fs.writeFileSync(skinPath, skinBuffer);
+        res.send({ success: true, message: `Skin for ${ign} saved successfully.` });
+    } catch (error) {
+        console.error("Error saving skin:", error);
+        res.status(500).send({ error: "Internal server error" });
+    }    
+});
+
+app.use(
     "/assets/skins",
     express.static("assets/skins")
 );

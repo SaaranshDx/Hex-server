@@ -275,12 +275,29 @@ function toggleFavorite(capeId) {
     }
 }
 
+async function getSkinUrl(ign) {
+    const hexUrl = `/assets/skins/${ign}.png`;
+
+    try {
+        const response = await fetch(hexUrl, {
+            method: "GET"
+        });
+
+        if (response.ok) {
+            return hexUrl;
+        }
+    } catch {}
+
+    return `https://minotar.net/skin/${ign}`;
+}
+const skinurl = await getSkinUrl(ign)
+
 const viewer = (ign && capeId)
     ? new skinview3d.SkinViewer({
         canvas: document.getElementById("skin_container"),
         width: 280,
         height: 490,
-        skin: `https://minotar.net/skin/${ign}`,
+        skin: skinurl,
         cape: `/assets/capes/${capeId}.png`
     })
     : null;
@@ -452,11 +469,12 @@ async function showCapePreview(capeId, preview, meta) {
     previewCanvas.style.cssText = 'width: 100%; max-width: 280px; margin: 0 auto; border-radius: 12px;';
     modalContent.appendChild(previewCanvas);
 
+    const previewSkinUrl = ign ? await getSkinUrl(ign) : 'https://minotar.net/skin/Steve';
     const previewViewer = new skinview3d.SkinViewer({
         canvas: previewCanvas,
         width: 280,
         height: 400,
-        skin: `https://minotar.net/skin/${ign || 'Steve'}`,
+        skin: previewSkinUrl,
         cape: `/assets/capes/${capeId}.png`
     });
     previewViewer.controls.enableZoom = false;
@@ -1220,6 +1238,96 @@ function openSubmitModal() {
         };
 }
 
+function openSkinUploadModal() {
+    if (document.getElementById("skin-upload-modal")) {
+        return;
+    }
+
+    const overlay = document.createElement("div");
+    overlay.id = "skin-upload-modal";
+    overlay.className = "submit-modal-overlay";
+
+    const modal = document.createElement("div");
+    modal.className = "submit-modal";
+
+    modal.innerHTML = `
+        <div class="submit-modal-header">
+            <h2>Upload Skin</h2>
+            <button id="close-skin-upload-modal" class="submit-modal-close" aria-label="Close skin upload modal">✕</button>
+        </div>
+        <div class="submit-modal-body">
+            <div class="upload-zone" data-upload-zone="skin-texture-input">
+                <input id="skin-texture-input" type="file" accept=".png,image/png">
+                <div class="upload-zone-icon" aria-hidden="true"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                <div class="upload-zone-content">
+                    <div class="upload-zone-title">Skin Texture (.png)</div>
+                    <div class="upload-zone-help">Drag and drop your skin texture here, or click to browse.</div>
+                    <div class="upload-zone-file" data-file-label="skin-texture-input">No file selected yet</div>
+                </div>
+                <div class="upload-zone-badge">Required</div>
+            </div>
+            <button id="upload-skin-btn" class="submit-cape-btn">Upload Skin</button>
+        </div>
+    `;
+
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+
+    document.getElementById("close-skin-upload-modal").onclick = () => overlay.remove();
+    overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+
+    setupUploadZone(
+        modal.querySelector('[data-upload-zone="skin-texture-input"]'),
+        document.getElementById("skin-texture-input"),
+        document.querySelector('[data-file-label="skin-texture-input"]')
+    );
+
+    document.getElementById("upload-skin-btn").onclick = async () => {
+        const file = document.getElementById("skin-texture-input").files[0];
+        if (!file) {
+            showPopup("Skin texture is required", "warning", 3000);
+            return;
+        }
+        if (!file.type || file.type !== "image/png") {
+            showPopup("Skin texture must be a PNG file", "error", 3000);
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const skinBase64 = e.target.result.split(",")[1];
+
+            const btn = document.getElementById("upload-skin-btn");
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Uploading...';
+
+            try {
+                const res = await fetch("/assets/skins", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ token, skinBase64 })
+                });
+
+                const data = await res.json();
+                if (!res.ok || !data.success) {
+                    throw new Error(data.error || "Failed to upload skin");
+                }
+
+                overlay.remove();
+                showPopup("Skin uploaded successfully! Reloading...", "success", 2000);
+                setTimeout(() => location.reload(), 1500);
+            } catch (error) {
+                console.error(error);
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                showPopup(error.message || "Failed to upload skin", "error", 3000);
+            }
+        };
+        reader.readAsDataURL(file);
+    };
+}
+
 const submitBtns = document.querySelectorAll('.header-btn');
 for (const btn of submitBtns) {
     if (btn.textContent.includes('Submit Cape')) {
@@ -1227,6 +1335,8 @@ for (const btn of submitBtns) {
         break;
     }
 }
+
+document.getElementById("skin-upload-btn")?.addEventListener("click", openSkinUploadModal);
 
 const accountChip = document.getElementById('header-account-chip');
 if (accountChip) {
@@ -1401,11 +1511,13 @@ async function showAccountInfoModal(currentToken) {
         previewCanvas.style.cssText = 'width: 100%; border-radius: 16px; min-height: 300px;';
         contentGrid.appendChild(previewCanvas);
 
+        const PreviewSkinUrl = await getSkinUrl(userInfo.ign || 'Undefined');
+
         previewViewer = new skinview3d.SkinViewer({
             canvas: previewCanvas,
             width: 400,
             height: 500,
-            skin: `https://minotar.net/skin/${userInfo.ign || 'Steve'}`,
+            skin: PreviewSkinUrl,
             cape: capePreviewUrl
         });
         previewViewer.controls.enableZoom = false;
