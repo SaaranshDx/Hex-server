@@ -140,7 +140,7 @@
 
 # Installation Guide
 
-This guide will walk you through installing PiCapes and setting up the recommended clients.
+This guide will walk you through installing Hex and setting up the recommended clients.
 
 <div class="install-cards">
   <div class="install-card install-card--primary">
