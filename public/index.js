@@ -462,33 +462,20 @@ async function showCapePreview(capeId, preview, meta) {
         modalContent.appendChild(authorEl);
     }
 
-    // 3D player preview with cape
+    // Loading spinner placeholder
+    const loadingContainer = document.createElement('div');
+    loadingContainer.className = 'loading-spinner';
+    loadingContainer.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><p>Loading preview...</p>';
+    modalContent.appendChild(loadingContainer);
+
+    // 3D player preview with cape (hidden until loaded)
     const previewCanvas = document.createElement('canvas');
     previewCanvas.width = 280;
     previewCanvas.height = 400;
-    previewCanvas.style.cssText = 'width: 100%; max-width: 280px; margin: 0 auto; border-radius: 12px;';
+    previewCanvas.style.cssText = 'width: 100%; max-width: 280px; margin: 0 auto; border-radius: 12px; display: none;';
     modalContent.appendChild(previewCanvas);
 
-    const previewSkinUrl = ign ? await getSkinUrl(ign) : 'https://minotar.net/skin/Steve';
-    const previewViewer = new skinview3d.SkinViewer({
-        canvas: previewCanvas,
-        width: 280,
-        height: 400,
-        skin: previewSkinUrl,
-        cape: `/assets/capes/${capeId}.png`
-    });
-    previewViewer.controls.enableZoom = false;
-    previewViewer.animation = new skinview3d.IdleAnimation();
-    previewViewer.playerObject.rotation.y = -158 * Math.PI / 180;
-
-    const disposeViewer = () => {
-        previewViewer.animation = null;
-        if (typeof previewViewer.dispose === 'function') {
-            previewViewer.dispose();
-        }
-    };
-
-    // Button container
+    // Button container (disabled until loaded)
     const buttonContainer = document.createElement('div');
     buttonContainer.className = 'modal-buttons';
 
@@ -499,65 +486,21 @@ async function showCapePreview(capeId, preview, meta) {
         ? '<i class="fa-solid fa-heart"></i> Liked'
         : '<i class="fa-regular fa-heart"></i> Like';
     favBtn.className = 'modal-btn' + (isFav ? ' modal-btn-fav active' : ' modal-btn-fav');
-    favBtn.onclick = async () => {
-        const wasFav = isFavorite(capeId);
-        if (wasFav) {
-            const result = await removeFavorite(capeId);
-            if (!result.success) {
-                showPopup(result.message || 'Failed to remove favorite', 'error', 3000);
-                return;
-            }
-        } else {
-            const result = await addFavorite(capeId);
-            if (!result.success) {
-                showPopup(result.message || 'Failed to add favorite', 'error', 3000);
-                return;
-            }
-        }
-        toggleFavorite(capeId);
-        favBtn.innerHTML = isFavorite(capeId)
-            ? '<i class="fa-solid fa-heart"></i> Liked'
-            : '<i class="fa-regular fa-heart"></i> Like';
-        favBtn.classList.toggle('active');
-        showPopup(wasFav ? 'Removed from favorites' : 'Added to favorites', 'success', 1500);
-
-        const starBtn = document.querySelector(`[data-cape-id="${capeId}"] .fav-star`);
-        if (starBtn) {
-            starBtn.classList.toggle('active');
-            starBtn.innerHTML = isFavorite(capeId)
-                ? '<i class="fa-solid fa-heart"></i>'
-                : '<i class="fa-regular fa-heart"></i>';
-        }
-    };
 
     // Apply button
     const applyBtn = document.createElement('button');
     applyBtn.textContent = 'Apply Cape';
     applyBtn.className = 'modal-btn modal-btn-apply';
-    applyBtn.onclick = () => {
-        disposeViewer();
-        applyCape(capeId);
-        document.body.removeChild(modal);
-    };
 
     //share button
     const shareBtn = document.createElement('button');
     shareBtn.textContent = 'Share Cape';
     shareBtn.className = 'modal-btn modal-btn-cancle';
-    shareBtn.onclick = () => {
-        navigator.clipboard.writeText("https://dash.hexcapes.qzz.io/?previewId=" + capeId).then(() => {
-            showPopup("Cape link copied to clipboard!", "success", 2000);
-        });
-    };
 
     // Cancel button
     const cancelBtn = document.createElement('button');
     cancelBtn.textContent = 'Cancel';
     cancelBtn.className = 'modal-btn modal-btn-cancel';
-    cancelBtn.onclick = () => {
-        disposeViewer();
-        document.body.removeChild(modal);
-    };
 
     buttonContainer.appendChild(favBtn);
     buttonContainer.appendChild(applyBtn);
@@ -567,6 +510,24 @@ async function showCapePreview(capeId, preview, meta) {
 
     modal.appendChild(modalContent);
 
+    // Append modal to DOM immediately so it renders
+    document.body.appendChild(modal);
+
+    // Loading state vars
+    let previewViewer = null;
+    let disposed = false;
+
+    const disposeViewer = () => {
+        disposed = true;
+        if (previewViewer) {
+            previewViewer.animation = null;
+            if (typeof previewViewer.dispose === 'function') {
+                previewViewer.dispose();
+            }
+            previewViewer = null;
+        }
+    };
+
     // Close on overlay click
     modal.onclick = (e) => {
         if (e.target === modal) {
@@ -575,7 +536,80 @@ async function showCapePreview(capeId, preview, meta) {
         }
     };
 
-    document.body.appendChild(modal);
+    cancelBtn.onclick = () => {
+        disposeViewer();
+        document.body.removeChild(modal);
+    };
+
+    // Defer texture loading and viewer init so modal shows first
+    requestAnimationFrame(async () => {
+        try {
+            const previewSkinUrl = ign ? await getSkinUrl(ign) : 'https://minotar.net/skin/Steve';
+            if (disposed) return;
+
+            previewViewer = new skinview3d.SkinViewer({
+                canvas: previewCanvas,
+                width: 280,
+                height: 400,
+                skin: previewSkinUrl,
+                cape: `/assets/capes/${capeId}.png`
+            });
+            previewViewer.controls.enableZoom = false;
+            previewViewer.animation = new skinview3d.IdleAnimation();
+            previewViewer.playerObject.rotation.y = -158 * Math.PI / 180;
+
+            // Remove loading spinner, show canvas
+            loadingContainer.remove();
+            previewCanvas.style.display = '';
+
+            // Wire up buttons that need viewer
+            favBtn.onclick = async () => {
+                const wasFav = isFavorite(capeId);
+                if (wasFav) {
+                    const result = await removeFavorite(capeId);
+                    if (!result.success) {
+                        showPopup(result.message || 'Failed to remove favorite', 'error', 3000);
+                        return;
+                    }
+                } else {
+                    const result = await addFavorite(capeId);
+                    if (!result.success) {
+                        showPopup(result.message || 'Failed to add favorite', 'error', 3000);
+                        return;
+                    }
+                }
+                toggleFavorite(capeId);
+                favBtn.innerHTML = isFavorite(capeId)
+                    ? '<i class="fa-solid fa-heart"></i> Liked'
+                    : '<i class="fa-regular fa-heart"></i> Like';
+                favBtn.classList.toggle('active');
+                showPopup(wasFav ? 'Removed from favorites' : 'Added to favorites', 'success', 1500);
+
+                const starBtn = document.querySelector(`[data-cape-id="${capeId}"] .fav-star`);
+                if (starBtn) {
+                    starBtn.classList.toggle('active');
+                    starBtn.innerHTML = isFavorite(capeId)
+                        ? '<i class="fa-solid fa-heart"></i>'
+                        : '<i class="fa-regular fa-heart"></i>';
+                }
+            };
+
+            applyBtn.onclick = () => {
+                disposeViewer();
+                applyCape(capeId);
+                document.body.removeChild(modal);
+            };
+
+            shareBtn.onclick = () => {
+                navigator.clipboard.writeText("https://dash.hexcapes.qzz.io/?previewId=" + capeId).then(() => {
+                    showPopup("Cape link copied to clipboard!", "success", 2000);
+                });
+            };
+        } catch (error) {
+            console.error('Error loading cape preview:', error);
+            loadingContainer.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:#e14c55;"></i><p style="color:#e14c55;">Failed to load preview</p>';
+        }
+    });
 }
 
 // Update cape highlight in selector
