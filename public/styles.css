@@ -551,6 +551,10 @@ button, input {
     border-color: #ff4d9466;
 }
 
+.view-toggle:hover {
+    color: #0f95ff !important;
+}
+
 /* ===== Submit Modal ===== */
 .submit-modal-overlay {
     position: fixed;
