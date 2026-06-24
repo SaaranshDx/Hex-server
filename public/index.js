@@ -552,6 +552,27 @@ async function showCapePreview(capeId, preview, meta) {
         }
     };
 
+    // Pre-load 3D model immediately so it's ready when toggled
+    (async () => {
+        try {
+            const previewSkinUrl = ign ? await getSkinUrl(ign) : 'https://minotar.net/skin/Steve';
+            if (disposed) return;
+            previewViewer = new skinview3d.SkinViewer({
+                canvas: previewCanvas,
+                width: 280,
+                height: 400,
+                skin: previewSkinUrl,
+                cape: `/assets/capes/${capeId}.png`
+            });
+            previewViewer.controls.enableZoom = false;
+            previewViewer.animation = new skinview3d.IdleAnimation();
+            previewViewer.playerObject.rotation.y = -158 * Math.PI / 180;
+            viewerInitialized = true;
+        } catch (error) {
+            console.error('Error loading 3D preview:', error);
+        }
+    })();
+
     modal.onclick = (e) => {
         if (e.target === modal) {
             disposeViewer();
@@ -572,25 +593,6 @@ async function showCapePreview(capeId, preview, meta) {
             toggleBtn.innerHTML = '<i class="fa-solid fa-toggle-on" style="color: #0f95ff;"></i>';
             previewImg.style.display = 'none';
             previewCanvas.style.display = '';
-            if (!viewerInitialized) {
-                try {
-                    const previewSkinUrl = ign ? await getSkinUrl(ign) : 'https://minotar.net/skin/Steve';
-                    if (disposed) return;
-                    previewViewer = new skinview3d.SkinViewer({
-                        canvas: previewCanvas,
-                        width: 280,
-                        height: 400,
-                        skin: previewSkinUrl,
-                        cape: `/assets/capes/${capeId}.png`
-                    });
-                    previewViewer.controls.enableZoom = false;
-                    previewViewer.animation = new skinview3d.IdleAnimation();
-                    previewViewer.playerObject.rotation.y = -158 * Math.PI / 180;
-                    viewerInitialized = true;
-                } catch (error) {
-                    console.error('Error loading 3D preview:', error);
-                }
-            }
         } else {
             toggleLabel2d.style.color = '#999';
             toggleLabel3d.style.color = '#666';
