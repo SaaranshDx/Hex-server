@@ -184,43 +184,66 @@ function showLoginModal() {
 
 document.getElementById('how-to-use-btn').addEventListener('click', showTokenErrorModal);
 
-
 const params = new URLSearchParams(window.location.search);
-
-// extract the token from the url
-
-const token = params.get("token");
-
-// extract previewId from the url
-
+const urlToken = params.get("token");
 const previewId = params.get("previewId");
 
-
-
+let token = null;
 let userData = null;
 
-async function getuserdata(token) {
-    const response = await fetch(`/profile/meta/${token}`);
-    const data = await response.json();
-    console.log("User data:", data);
-    return data;
+const COOKIE_NAME = 'hex_token';
+
+function getCookie(name) {
+    const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+    return match ? decodeURIComponent(match[1]) : null;
+}
+
+function setCookie(name, value, days) {
+    const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
+    document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
+}
+
+async function validateTokenOnServer(tok) {
+    try {
+        const response = await fetch(`/profile/meta/${tok}`);
+        if (!response.ok) return null;
+        const data = await response.json();
+        return data.error ? null : data;
+    } catch {
+        return null;
+    }
 }
 
 async function init() {
-    if (!token) {
-        showTokenErrorModal();
-        userData = null;
+    const cookieToken = getCookie(COOKIE_NAME);
+
+    if (urlToken) {
+        const urlUserData = await validateTokenOnServer(urlToken);
+        if (urlUserData) {
+            token = urlToken;
+            userData = urlUserData;
+            setCookie(COOKIE_NAME, urlToken, 3);
+            return;
+        }
+    }
+
+    if (cookieToken) {
+        const cookieUserData = await validateTokenOnServer(cookieToken);
+        if (cookieUserData) {
+            token = cookieToken;
+            userData = cookieUserData;
+            return;
+        }
+        if (!urlToken) {
+            showLoginModal();
+        }
         return;
     }
 
-    userData = await getuserdata(token).catch(error => {
-        console.error("Error fetching user data:", error);
-        return null;
-    });
-
-    if (!userData || userData.error) {
+    if (urlToken) {
         showLoginModal();
-        userData = null;
+    } else {
+        showTokenErrorModal();
     }
 }
 
