@@ -1449,7 +1449,27 @@ function openSkinUploadModal() {
     };
 }
 
-const submitBtns = document.querySelectorAll('.header-btn');
+// Dropdown toggle
+document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+    toggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = toggle.dataset.dropdown;
+        const menu = document.getElementById(`dropdown-${id}`);
+        const isOpen = menu.classList.contains('open');
+        document.querySelectorAll('.dropdown-menu.open').forEach(m => m.classList.remove('open'));
+        document.querySelectorAll('.dropdown-toggle.open').forEach(t => t.classList.remove('open'));
+        if (!isOpen) {
+            menu.classList.add('open');
+            toggle.classList.add('open');
+        }
+    });
+});
+document.addEventListener('click', () => {
+    document.querySelectorAll('.dropdown-menu.open').forEach(m => m.classList.remove('open'));
+    document.querySelectorAll('.dropdown-toggle.open').forEach(t => t.classList.remove('open'));
+});
+
+const submitBtns = document.querySelectorAll('.header-btn, .dropdown-menu button');
 for (const btn of submitBtns) {
     if (btn.textContent.includes('Submit Cape')) {
         btn.onclick = openSubmitModal;
