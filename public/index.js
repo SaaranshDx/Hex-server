@@ -188,6 +188,9 @@ const params = new URLSearchParams(window.location.search);
 const urlToken = params.get("token");
 const previewId = params.get("previewId");
 
+console.log(`[hex] URL token: ${urlToken ? 'present' : 'none'}`);
+console.log(`[hex] previewId: ${previewId || 'none'}`);
+
 let token = null;
 let userData = null;
 
@@ -204,12 +207,22 @@ function setCookie(name, value, days) {
 }
 
 async function validateTokenOnServer(tok) {
+    console.log(`[hex] Validating token on server...`);
     try {
         const response = await fetch(`/profile/meta/${tok}`);
-        if (!response.ok) return null;
+        if (!response.ok) {
+            console.warn(`[hex] Server returned ${response.status} for token validation`);
+            return null;
+        }
         const data = await response.json();
-        return data.error ? null : data;
-    } catch {
+        if (data.error) {
+            console.warn(`[hex] Token validation error: ${data.error}`);
+            return null;
+        }
+        console.log(`[hex] Token valid for user: ${data.ign}`);
+        return data;
+    } catch (err) {
+        console.error(`[hex] Token validation request failed:`, err);
         return null;
     }
 }
@@ -217,32 +230,47 @@ async function validateTokenOnServer(tok) {
 async function init() {
     const cookieToken = getCookie(COOKIE_NAME);
 
+    if (cookieToken) {
+        console.log(`[hex] Found cookie token: ${cookieToken.slice(0, 12)}...`);
+    } else {
+        console.log(`[hex] No cookie token found`);
+    }
+
     if (urlToken) {
+        console.log(`[hex] URL token present, validating...`);
         const urlUserData = await validateTokenOnServer(urlToken);
         if (urlUserData) {
+            console.log(`[hex] URL token valid, saving to cookie and using it`);
             token = urlToken;
             userData = urlUserData;
             setCookie(COOKIE_NAME, urlToken, 3);
             return;
         }
+        console.warn(`[hex] URL token invalid, falling back to cookie token`);
     }
 
     if (cookieToken) {
+        console.log(`[hex] Validating cookie token...`);
         const cookieUserData = await validateTokenOnServer(cookieToken);
         if (cookieUserData) {
+            console.log(`[hex] Cookie token valid, using it`);
             token = cookieToken;
             userData = cookieUserData;
             return;
         }
+        console.warn(`[hex] Cookie token invalid`);
         if (!urlToken) {
+            console.warn(`[hex] No URL token fallback, showing login modal`);
             showLoginModal();
         }
         return;
     }
 
     if (urlToken) {
+        console.warn(`[hex] URL token was present but invalid, no cookie fallback`);
         showLoginModal();
     } else {
+        console.warn(`[hex] No token found anywhere, showing registration modal`);
         showTokenErrorModal();
     }
 }
