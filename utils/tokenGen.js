@@ -15,7 +15,7 @@ function generateToken(userId) {
     tokenStore[token] = {
         userId: userId,
         createdAt: Date.now(),
-        expiresAt: Date.now() + (3 * 60 * 60 * 1000) // 3 hours expiration
+        expiresAt: Date.now() + (3 * 24 * 60 * 60 * 1000) // 3 days expiration
     };
     return token;
 }
@@ -49,6 +49,14 @@ function revokeToken(token) {
     delete tokenStore[token];
 }
 
+function invalidateToken(userId, token) {
+    if (tokenStore[token] && tokenStore[token].userId === userId) {
+        delete tokenStore[token];
+        return true;
+    }
+    return false;
+}
+
 function validateTokenBoolState(token) {
     return validateToken(token) !== null;
 }
@@ -57,5 +65,6 @@ module.exports = {
     generateToken,
     validateToken,
     revokeToken,
+    invalidateToken,
     validateTokenBoolState
 };
