@@ -259,10 +259,12 @@ async function init() {
             return;
         }
         console.warn(`[hex] Cookie token invalid`);
-        if (!urlToken) {
+        if (urlToken) {
+            console.warn(`[hex] URL token was also invalid, showing login modal`);
+        } else {
             console.warn(`[hex] No URL token fallback, showing login modal`);
-            showLoginModal();
         }
+        showLoginModal();
         return;
     }
 
