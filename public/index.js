@@ -1459,6 +1459,15 @@ for (const btn of submitBtns) {
 
 document.getElementById("skin-upload-btn")?.addEventListener("click", openSkinUploadModal);
 
+document.getElementById('open-studio-btn')?.addEventListener('click', () => {
+    const t = token || getCookie(COOKIE_NAME);
+    if (t) {
+        window.open(`/Studio/?token=${encodeURIComponent(t)}`, '_blank');
+    } else {
+        showLoginModal();
+    }
+});
+
 const accountChip = document.getElementById('header-account-chip');
 if (accountChip) {
     accountChip.addEventListener('click', () => showAccountInfoModal(token));
