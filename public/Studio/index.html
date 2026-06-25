@@ -332,9 +332,8 @@
                         </div>
                         <hr>
                         <div class="text-center">
-                            Created by <a target="_blank" href="https://github.com/james090500">James Harrison</a> for <a target="_blank" href="https://minecraftcapes.net">MinecraftCapes</a>
                             <br>
-                            <a target="_blank" href="https://github.com/minecraftcapes/minecraft-cape-creator">View us on GitHub</a>
+                            <a target="_blank" href="https://github.com/SaaranshDx/hex-server">View us on GitHub</a>
                         </div>
                     </div>
                 </div>
@@ -737,7 +736,7 @@
                         }
                     },
                     toggleElytra(value) {
-                        this.minecraftSkinViewer.setElytra(value.target.checked)
+                        this.minecraftSkinViewer.playerObject.backEquipment = value.target.checked ? "elytra" : "cape"
                     },
                     uploadImage(event) {
                         if(event.target.files.length > 0) {
