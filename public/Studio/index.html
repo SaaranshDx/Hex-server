@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+        <title>Minecraft Cape Creator</title>
+    </head>
+    <body data-bs-theme="dark">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-md-8 col-12">
+                    <div id="app" class="p-5">
+                        <h1>Minecraft Cape Creator</h1>
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-6 mb-1">
+                                <div>
+                                    <h4>Select Image</h4>
+                                    <div class="row">
+                                        <div class="col-7">
+                                            <input type="file" class="form-control" @change="uploadImage" accept="image/*">
+                                        </div>
+                                        <div class="col-1 align-middle align-content-center">
+                                            <p class="d-inline"></p>
+                                        </div>
+                                        <div class="col-4">
+                                        </div>
+                                    </div>
+                                </div>
+                                <br>
+                                <br>
+                                <div>
+                                    <h4>Show on Elytra</h4>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" v-model="showOnElytra" @change="changeElytra">
+                                        <label class="form-check-label">
+                                            Show on Elytra
+                                        </label>
+                                    </div>
+                                </div>
+                                <br>
+                                <div>
+                                    <h4>Set Color</h4>
+                                    <div class="row">
+                                        <div class="col-7">
+                                            <input type="color" class="form-control" v-model="color" @change="changeColour">
+                                        </div>
+                                        <div class="col-1 align-middle align-content-center">
+                                            <p class="d-inline">or</p>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" v-model="autoColor" @change="changeColour">
+                                                <label class="form-check-label">
+                                                    Auto Color
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <br>
+                                <div>
+                                    <h4>Set Scale ({{ visualiseScale }})</h4>
+                                    <input type="range" class="form-range" min="1" max="6" step="1" v-model="scale" @change="changeScale">
+                                </div>
+                                <hr>
+                                <div>
+                                    <img id="cropper-image" :src="templateImageSrc" class="mw-100"/>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="position-relative">
+                                    <div class="form-check form-switch position-absolute m-3 end-0">
+                                        <input class="form-check-input" type="checkbox" role="switch" @click="toggleElytra">
+                                        <label class="form-check-label">Elytra</label>
+                                    </div>
+                                </div>
+                                <canvas id="minecraft-skin-viewer" width="300" height="400" class="border rounded shadow-lg"></canvas>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-6 mb-1">
+                                <h3 class="text-center">Your Cape</h3>
+                                <p>This is your final cape design. You can download your cape by using the button below.</p>
+                                <p>This project aims to help users move images onto capes with minimual effort.</p>
+                                <button @click="downloadCape" class="btn btn-primary">Download Cape</button>
+                            </div>
+                            <div class="col-md-6">
+                                <img :src="capePreviewSrc" class="texture-preview w-100 border mb-1"/>
+                            </div>
+                            <hr class="my-2">
+                        </div>
+                        <hr>
+                        <div class="text-center">
+                            Created by <a target="_blank" href="https://github.com/james090500">James Harrison</a> for <a target="_blank" href="https://minecraftcapes.net">MinecraftCapes</a>
+                            <br>
+                            <a target="_blank" href="https://github.com/minecraftcapes/minecraft-cape-creator">View us on GitHub</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <link rel="stylesheet" href="https://unpkg.com/cropperjs@1.6.2/dist/cropper.min.css"/>
+        <script src="https://cdn.jsdelivr.net/npm/skinview3d@latest/bundles/skinview3d.bundle.js"></script>
+        <style>
+            #minecraft-skin-viewer {
+                width: 100%;
+                height: 600px;
+                display: block;
+                background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgAQMAAABJtOi3AAAABlBMVEUgIDAcHCq70aXDAAAAE0lEQVQI12P4/5+BgZoEA3VNBADtvT/BrQ+bEwAAAABJRU5ErkJggg==');
+                background-repeat: repeat;
+            }
+
+            @media (max-width: 576px) {
+                #minecraft-skin-viewer {
+                    height: 50vh;
+                }
+            }
+
+            .texture-preview {
+                image-rendering: pixelated;
+            }
+        </style>
+        <script src="./packages/skinview3d.bundle.js"></script>
+        <script type="module">
+            import { createApp } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
+            import CropperJS from 'https://unpkg.com/cropperjs@1.6.2/dist/cropper.esm.js'
+            import * as skinview3d from "https://esm.sh/skinview3d";
+            import MinecraftCapeCreator from './src/main.js'
+
+            createApp({
+                data() {
+                    return {
+                        seed: null,
+                        minecraftSkinViewer: null,
+                        minecraftCapeCreator: new MinecraftCapeCreator(),
+                        cropper: null,
+                        file: "",
+                        showOnElytra: true,
+                        autoColor: true,
+                        color: "#FF0000",
+                        scale: 1,
+                        templateImageSrc: null,
+                        capePreviewSrc: null,
+                    }
+                },
+                created() {
+                    this.loadRandomImage();
+                },
+                mounted() {
+                    let image = document.getElementById('cropper-image')
+                    this.cropper = new CropperJS(image, {
+                        aspectRatio: 10 / 16,
+                        guides: false,
+                        ready: this.changeImage,
+                        cropend: this.changeImage,
+                        zoomable: false
+                    })
+
+                    this.$nextTick(() => {
+                        this.minecraftSkinViewer = new skinview3d.SkinViewer({
+                            canvas: document.getElementById('minecraft-skin-viewer'),
+                            width: 360,
+                            height: 550
+                        })
+                        this.minecraftSkinViewer.loadSkin("http://minotar.net/skin/vgrb")
+                        this.minecraftSkinViewer.playerObject.rotation.y = Math.PI
+                        this.buildCape()
+                    })
+                },
+                methods: {
+                    loadRandomImage() {
+                        this.seed = Date.now()
+                        this.templateImageSrc = `https://picsum.photos/seed/${this.seed}/1600/900`
+                        if(this.cropper != null) {
+                            this.cropper.replace(this.templateImageSrc)
+                        }
+                    },
+                    toggleElytra(value) {
+                        this.minecraftSkinViewer.setElytra(value.target.checked)
+                    },
+                    uploadImage(event) {
+                        if(event.target.files.length > 0) {
+                            var reader = new FileReader()
+                            reader.readAsDataURL(event.target.files[0])
+                            reader.onload = () => {
+                                this.cropper.replace(reader.result)
+                            };
+                        }
+                    },
+                    uploadBackground(event) {
+                        if(event.target.files.length == 0) {
+                            this.minecraftCapeCreator.setBackground(null)
+                            this.buildCape()
+                            return;
+                        } else {
+                            var reader = new FileReader()
+                            reader.readAsDataURL(event.target.files[0])
+                            reader.onload = () => {
+                                this.minecraftCapeCreator.setBackground(reader.result)
+                                this.buildCape()
+                            };
+                        }
+                    },
+                    changeElytra(value) {
+                        this.minecraftCapeCreator.showOnElytra(value.target.checked)
+                        this.buildCape();
+                    },
+                    changeImage() {
+                        this.minecraftCapeCreator.setImage(this.cropper.getCroppedCanvas().toDataURL())
+                        this.buildCape();
+                    },
+                    changeColour() {
+                        if(this.autoColor) {
+                            this.minecraftCapeCreator.setAutoColor()
+                        } else {
+                            this.minecraftCapeCreator.setColor(this.color)
+                        }
+                        this.buildCape()
+                    },
+                    changeScale() {
+                        this.minecraftCapeCreator.setScale(this.scale)
+                        this.buildCape()
+                    },
+                    buildCape() {
+                        this.minecraftCapeCreator.buildCape().then(value => {
+                            this.capePreviewSrc = value;
+                            this.minecraftSkinViewer.loadCape(this.capePreviewSrc)
+                        })
+                    },
+                    downloadCape() {
+                        this.minecraftCapeCreator.downloadCape();
+                    }
+                },
+                computed: {
+                    visualiseScale() {
+                        let realScale = Math.pow(2, this.scale - 1)
+                        return `${64 * realScale} / ${32 * realScale}`
+                    }
+                }
+            }).mount('#app')
+
+
+
+          </script>
+    </body>
+</html>
