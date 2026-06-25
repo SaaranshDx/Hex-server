@@ -18,43 +18,27 @@
                 </div>
             </div>
             <div class="header-right">
-                <div class="dropdown">
-                    <button class="header-btn dropdown-toggle" data-dropdown="links">
-                        <i class="fa-solid fa-link"></i> Links
-                        <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
-                    </button>
-                    <div class="dropdown-menu" id="dropdown-links">
-                        <button onclick="window.open('https://dsc.gg/hexcapes', '_blank')">
-                            <i class="fa-brands fa-discord"></i> Discord
-                        </button>
-                        <button onclick="window.open('https://modrinth.com/mod/hex-capes/versions', '_blank')">
-                            <i class="fa-solid fa-download"></i> Download Mod
-                        </button>
-                        <button id="how-to-use-btn" onclick="window.open('https://hexcapes.qzz.io/docs', '_blank')">
-                            <i class="fa-solid fa-question-circle"></i> How to Use
-                        </button>
-                    </div>
-                </div>
-                <div class="dropdown">
-                    <button class="header-btn dropdown-toggle" data-dropdown="tools">
-                        <i class="fa-solid fa-screwdriver-wrench"></i> Tools
-                        <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
-                    </button>
-                    <div class="dropdown-menu" id="dropdown-tools">
-                        <button id="bedrock-catalog-bug-btn" onclick="window.open('/bedrock', '_blank')">
-                            <i class="fa-solid fa-cube"></i> Bedrock Catalog
-                        </button>
-                        <button id="cape-template-bug-btn" onclick="window.open('/template/java', '_blank')">
-                            <i class="fa-solid fa-file-zipper"></i> Cape Template
-                        </button>
-                        <button id="open-studio-btn">
-                            <i class="fa-solid fa-paintbrush"></i> Creator Studio
-                        </button>
-                        <button>
-                            <i class="fa-solid fa-arrow-up-from-bracket"></i> Submit Cape
-                        </button>
-                    </div>
-                </div>
+                <button class="header-btn" onclick="window.open('https://dsc.gg/hexcapes', '_blank')">
+                    <i class="fa-brands fa-discord"></i> Discord
+                </button>
+                <button class="header-btn" onclick="window.open('https://modrinth.com/mod/hex-capes/versions')">
+                    <i class="fa-solid fa-download"></i> Download Mod
+                </button>
+                <button class="header-btn" id="how-to-use-btn" onclick="window.open('https://hexcapes.qzz.io/docs', '_blank')">
+                    <i class="fa-solid fa-question-circle"></i> How to Use
+                </button>
+                <button class="header-btn" id="bedrock-catalog-bug-btn" onclick="window.open('/bedrock', '_blank')">
+                    <i class="fa-solid fa-cube"></i> Open Bedrock Catalog
+                </button>
+                <button class="header-btn" id="cape-template-bug-btn" onclick="window.open('/template/java', '_blank')">
+                    <i class="fa-solid fa-file-zipper"></i> Cape template
+                </button>
+                <button class="header-btn" id="open-studio-btn">
+                    <i class="fa-solid fa-paintbrush"></i> Creator Studio
+                </button>
+                <button class="header-btn">
+                    <i class="fa-solid fa-arrow-up-from-bracket"></i> Submit Cape
+                </button>
                 <button class="header-btn user-chip" id="header-account-chip" >
                     <span class="user-chip-avatar" aria-hidden="true"></span>
                     <span class="user-chip-text">

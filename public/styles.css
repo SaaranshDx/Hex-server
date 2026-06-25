@@ -27,65 +27,6 @@ button, input {
     flex-direction: column;
 }
 
-/* ===== Dropdown ===== */
-.dropdown {
-    position: relative;
-}
-
-.dropdown-toggle {
-    cursor: pointer;
-}
-
-.dropdown-arrow {
-    font-size: 10px;
-    color: #666;
-    transition: transform 0.2s;
-}
-
-.dropdown-toggle.open .dropdown-arrow {
-    transform: rotate(180deg);
-}
-
-.dropdown-menu {
-    position: absolute;
-    top: calc(100% + 6px);
-    right: 0;
-    min-width: 200px;
-    background: #0a0a0e;
-    border: 1px solid #1a1a24;
-    border-radius: 10px;
-    padding: 6px;
-    display: none;
-    z-index: 200;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
-}
-
-.dropdown-menu.open {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.dropdown-menu button {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-    padding: 10px 12px;
-    border: none;
-    border-radius: 6px;
-    background: transparent;
-    color: #bbb;
-    font-size: 13px;
-    cursor: pointer;
-    text-align: left;
-}
-
-.dropdown-menu button:hover {
-    background: #14141e;
-    color: #eee;
-}
-
 /* ===== Header ===== */
 .header {
     position: sticky;
