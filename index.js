@@ -188,10 +188,9 @@ client.once(Events.ClientReady, async () => {
   console.log(`Logged in as ${client.user.tag}`);
   await deployCommands();
   console.log("Commands deployed");
-  const statusType = PresenceUpdateStatus.Online;
+  const statusType = PresenceUpdateStatus.Idle;
   const activityType = ActivityType.Watching;
   const activityName = "Over the catalog of capes";
-
 
   client.user.setPresence({
     status: statusType,
@@ -813,6 +812,7 @@ app.get("/accountdata/:token", async (req, res) => {
 const { spawn } = require("child_process");
 
 client.login(process.env.DISCORD_TOKEN);
+
 
 app.listen(SERVICE_PORT, () => {
     console.log(`Hex server running on port ${SERVICE_PORT}`);
